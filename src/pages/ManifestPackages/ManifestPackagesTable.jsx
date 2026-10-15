@@ -150,7 +150,7 @@ const StatusChip = ({ status }) => {
    MANIFEST PACKAGES PUTAWAY TABLE
 ========================================================= */
 
-const ManifestPackagesPutawayTable = ({
+const ManifestPackagesTable = ({
     records = [],
     loading = false,
 
@@ -681,5 +681,5 @@ const ManifestPackagesPutawayTable = ({
     );
 };
 
-export default ManifestPackagesPutawayTable;
+export default ManifestPackagesTable;
 

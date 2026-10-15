@@ -1,5 +1,12 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
+import React, {
+    useEffect,
+    useMemo,
+    useState,
+    useCallback
+} from "react";
+
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 import {
     Box,
@@ -31,18 +38,13 @@ import {
     Clear
 } from "@mui/icons-material";
 
-import { useNavigate } from "react-router-dom";
-
 /* =========================================================
    API CONFIGURATION
+   Uses the Node.js proxy. No Vite environment variables.
 ========================================================= */
 
-const API_BASE_URL = (
-    import.meta.env.VITE_API_URL || ""
-).replace(/\/+$/, "");
-
 const MANIFEST_PACKAGES_PUTAWAY_API =
-    `${API_BASE_URL}/api/ManifestPackagesPutaway`;
+    "/api/ManifestPackagesPutaway";
 
 /* =========================================================
    HELPERS
@@ -127,6 +129,10 @@ const getStatusColor = (status) => {
 const normalizeRecords = (responseData) => {
     if (Array.isArray(responseData)) {
         return responseData;
+    }
+
+    if (Array.isArray(responseData?.$values)) {
+        return responseData.$values;
     }
 
     if (Array.isArray(responseData?.data)) {
@@ -216,7 +222,7 @@ const StatisticCard = ({
    MANIFEST PACKAGES PUTAWAY VIEW
 ========================================================= */
 
-const ManifestPackagesPutawayView = ({
+const ManifestPackagesPView = ({
     onView,
     onCreate,
     endpoint = MANIFEST_PACKAGES_PUTAWAY_API
@@ -231,6 +237,7 @@ const ManifestPackagesPutawayView = ({
     const [statusFilter, setStatusFilter] = useState("all");
     const [page, setPage] = useState(0);
     const [rowsPerPage, setRowsPerPage] = useState(10);
+
     const [snackbar, setSnackbar] = useState({
         open: false,
         message: "",
@@ -238,7 +245,7 @@ const ManifestPackagesPutawayView = ({
     });
 
     /* =====================================================
-       FETCH ALL RECORDS
+       FETCH RECORDS THROUGH NODE.JS PROXY
     ===================================================== */
 
     const fetchRecords = useCallback(async (showRefresh = false) => {
@@ -260,9 +267,7 @@ const ManifestPackagesPutawayView = ({
                 );
             }
 
-            const data = normalizeRecords(response.data);
-
-            setRecords(data);
+            setRecords(normalizeRecords(response.data));
         } catch (err) {
             console.error(
                 "GET MANIFEST PACKAGES PUTAWAY ERROR:",
@@ -301,18 +306,10 @@ const ManifestPackagesPutawayView = ({
         );
 
     const getManifestId = (record) =>
-        getValue(
-            record,
-            "manifestId",
-            "ManifestId"
-        );
+        getValue(record, "manifestId", "ManifestId");
 
     const getPackageId = (record) =>
-        getValue(
-            record,
-            "packageId",
-            "PackageId"
-        );
+        getValue(record, "packageId", "PackageId");
 
     const getLocation = (record) =>
         getValue(
@@ -420,7 +417,9 @@ const ManifestPackagesPutawayView = ({
         let totalQuantity = 0;
 
         records.forEach((record) => {
-            const status = String(getStatus(record) ?? "").toLowerCase();
+            const status = String(
+                getStatus(record) ?? ""
+            ).toLowerCase();
 
             if (
                 status.includes("complete") ||
@@ -437,7 +436,10 @@ const ManifestPackagesPutawayView = ({
 
             const quantity = Number(getQuantity(record));
 
-            if (Number.isFinite(quantity)) {
+            if (
+                getQuantity(record) !== null &&
+                Number.isFinite(quantity)
+            ) {
                 totalQuantity += quantity;
             }
         });
@@ -483,7 +485,7 @@ const ManifestPackagesPutawayView = ({
         if (onCreate) {
             onCreate();
         } else {
-            navigate("/manifest-packages-putaway/create");
+            navigate("/manifest-packages/create");
         }
     };
 
@@ -505,9 +507,15 @@ const ManifestPackagesPutawayView = ({
             >
                 <Box
                     display="flex"
-                    alignItems={{ xs: "flex-start", sm: "center" }}
+                    alignItems={{
+                        xs: "flex-start",
+                        sm: "center"
+                    }}
                     justifyContent="space-between"
-                    flexDirection={{ xs: "column", sm: "row" }}
+                    flexDirection={{
+                        xs: "column",
+                        sm: "row"
+                    }}
                     gap={2}
                 >
                     <Box display="flex" alignItems="center" gap={1.5}>
@@ -527,10 +535,7 @@ const ManifestPackagesPutawayView = ({
                         </Box>
 
                         <Box>
-                            <Typography
-                                variant="h5"
-                                fontWeight={700}
-                            >
+                            <Typography variant="h5" fontWeight={700}>
                                 Manifest Packages Putaway
                             </Typography>
 
@@ -596,7 +601,7 @@ const ManifestPackagesPutawayView = ({
             {/* STATISTICS */}
 
             <Grid container spacing={2} sx={{ mb: 3 }}>
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Total Records"
                         value={statistics.total}
@@ -605,7 +610,7 @@ const ManifestPackagesPutawayView = ({
                     />
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Completed"
                         value={statistics.completed}
@@ -614,7 +619,7 @@ const ManifestPackagesPutawayView = ({
                     />
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Pending"
                         value={statistics.pending}
@@ -623,7 +628,7 @@ const ManifestPackagesPutawayView = ({
                     />
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3}>
+                <Grid item xs={12} sm={6} md={3}>
                     <StatisticCard
                         title="Total Quantity"
                         value={statistics.totalQuantity}
@@ -644,7 +649,7 @@ const ManifestPackagesPutawayView = ({
                 }}
             >
                 <Grid container spacing={2} alignItems="center">
-                    <Grid xs={12} md={7}>
+                    <Grid item xs={12} md={7}>
                         <TextField
                             fullWidth
                             size="small"
@@ -676,7 +681,7 @@ const ManifestPackagesPutawayView = ({
                         />
                     </Grid>
 
-                    <Grid xs={12} sm={6} md={3}>
+                    <Grid item xs={12} sm={6} md={3}>
                         <TextField
                             select
                             fullWidth
@@ -687,25 +692,15 @@ const ManifestPackagesPutawayView = ({
                                 setStatusFilter(event.target.value)
                             }
                         >
-                            <MenuItem value="all">
-                                All Statuses
-                            </MenuItem>
-                            <MenuItem value="pending">
-                                Pending
-                            </MenuItem>
-                            <MenuItem value="completed">
-                                Completed
-                            </MenuItem>
-                            <MenuItem value="putaway">
-                                Putaway
-                            </MenuItem>
-                            <MenuItem value="cancelled">
-                                Cancelled
-                            </MenuItem>
+                            <MenuItem value="all">All Statuses</MenuItem>
+                            <MenuItem value="pending">Pending</MenuItem>
+                            <MenuItem value="completed">Completed</MenuItem>
+                            <MenuItem value="putaway">Putaway</MenuItem>
+                            <MenuItem value="cancelled">Cancelled</MenuItem>
                         </TextField>
                     </Grid>
 
-                    <Grid xs={12} sm={6} md={2}>
+                    <Grid item xs={12} sm={6} md={2}>
                         <Button
                             fullWidth
                             variant="outlined"
@@ -972,10 +967,7 @@ const ManifestPackagesPutawayView = ({
                                     sx={{ width: 85 }}
                                 >
                                     {[5, 10, 25, 50].map((size) => (
-                                        <MenuItem
-                                            key={size}
-                                            value={size}
-                                        >
+                                        <MenuItem key={size} value={size}>
                                             {size}
                                         </MenuItem>
                                     ))}
@@ -1067,5 +1059,4 @@ const ManifestPackagesPutawayView = ({
     );
 };
 
-export default ManifestPackagesPutawayView;
-
+export default ManifestPackagesPView;

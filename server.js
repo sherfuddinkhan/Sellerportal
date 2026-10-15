@@ -35884,16 +35884,27 @@ app.post("/api/manifest-packages", async (req, res) => {
     }
 });
 
-// UPDATE
+// UPDATE - ManifestPackages (No Putaway)
 app.put("/api/manifest-packages/:id", async (req, res) => {
     try {
+        const id = Number(req.params.id);
+
+        // Force manifestPackageId = id, otherwise .NET returns 400
+        const body = {
+            ...req.body,
+            manifestPackageId: id
+        };
+
+        console.log("Updating ManifestPackage", id, "with body:", body); // debug
+
         const response = await axios.put(
-            `${API_BASE_URL}/ManifestPackages/${req.params.id}`,
-            req.body
+            `${API_BASE_URL}/ManifestPackages/${id}`,
+            body
         );
 
         res.status(response.status).json(response.data);
     } catch (error) {
+        console.log("Backend PUT Error:", error.response?.data); // this will show real error
         res.status(error.response?.status || 500).json(
             error.response?.data || { message: error.message }
         );

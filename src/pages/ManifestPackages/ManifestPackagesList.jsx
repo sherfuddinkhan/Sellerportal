@@ -282,14 +282,15 @@ const ManifestPackagesList = () => {
     };
 
     // Edit record
-    const handleEdit = (record) => {
-        const id = getId(record);
+const handleEdit = (record) => {
+    const id = getId(record);
 
-        if (id != null) {
-            navigate(`/manifest-packages/${id}/edit`);
-        }
-    };
-
+    if (id != null) {
+        navigate(
+            `/manifest-packages/${encodeURIComponent(id)}/edit`
+        );
+    }
+};
     // Create record
     const handleCreate = () => {
         navigate("/manifest-packages/create");
