@@ -62,80 +62,82 @@ const PurchaseOrderItemView = () => {
         message: "",
         severity: "success"
     });
-
+const API_URL = "http://localhost:5000/api/purchase-order-items";
     // ========================================================
     // LOAD ITEM
     // ========================================================
 
     useEffect(() => {
+const loadPurchaseOrderItem = async () => {
+    const id = Number(itemId); // Use your component's ID variable.
 
-        const loadPurchaseOrderItem = async () => {
+    try {
+        setLoading(true);
+        setError("");
 
-            const purchaseOrderItemId = Number(id);
+        let item = null;
 
-            if (
-                !Number.isInteger(purchaseOrderItemId) ||
-                purchaseOrderItemId <= 0
-            ) {
-                setError(
-                    "Invalid Purchase Order Item ID."
-                );
+        // Try GET by ID first.
+        try {
+            const response = await axios.get(`${API_URL}/${id}`);
+            const data = response.data;
 
-                setLoading(false);
+            item = data?.data ?? data?.item ?? data;
 
-                return;
+            const returnedId =
+                item?.purchaseOrderItemId ??
+                item?.PurchaseOrderItemId ??
+                item?.id ??
+                item?.Id;
+
+            if (Number(returnedId) !== id) {
+                item = null;
             }
+        } catch (detailError) {
+            console.warn(
+                "GET by ID failed; trying GET /all.",
+                detailError.response?.status || detailError.message
+            );
+        }
 
-            try {
+        // Fall back to the collection endpoint.
+        if (!item) {
+            const response = await axios.get(`${API_URL}/all`);
 
-                setLoading(true);
+            const records = Array.isArray(response.data)
+                ? response.data
+                : response.data?.data ?? response.data?.items ?? [];
 
-                setError("");
+            item = records.find((record) => {
+                const recordId =
+                    record.purchaseOrderItemId ??
+                    record.PurchaseOrderItemId ??
+                    record.id ??
+                    record.Id;
 
-                console.log(
-                    "GET PURCHASE ORDER ITEM:",
-                    purchaseOrderItemId
-                );
+                return Number(recordId) === id;
+            });
+        }
 
-                console.log(
-                    "GET URL:",
-                    `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-                );
+        if (!item) {
+            throw new Error(`Purchase Order Item ${id} was not found.`);
+        }
 
-                const response = await axios.get(
-                    `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-                );
+        setItem(item); // Replace with your View page's existing state setter.
+    } catch (error) {
+        console.error("Failed to load purchase order item:", error);
 
-                console.log(
-                    "PURCHASE ORDER ITEM RESPONSE:",
-                    response.data
-                );
+        setError(
+            error.response?.data?.message ||
+            error.response?.data?.error ||
+            error.message ||
+            "Failed to load purchase order item."
+        );
+    } finally {
+        setLoading(false);
+    }
+};
 
-                setItem(response.data);
-
-            } catch (err) {
-
-                console.error(
-                    "FAILED TO LOAD PURCHASE ORDER ITEM:",
-                    err
-                );
-
-                console.error(
-                    "RESPONSE:",
-                    err.response?.data
-                );
-
-                setError(
-                    err.response?.data?.message ||
-                    err.response?.data?.error ||
-                    "Failed to load purchase order item."
-                );
-
-            } finally {
-
-                setLoading(false);
-            }
-        };
 
         loadPurchaseOrderItem();
 

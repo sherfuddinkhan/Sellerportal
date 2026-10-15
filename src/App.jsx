@@ -1115,13 +1115,12 @@ function App() {
         <Route path="purchase-orders/:id" element={<PurchaseOrderView />} />
         <Route path="purchase-orders/edit/:id" element={<PurchaseOrderEdit />} />
 
-        <Route path="purchase-order-items" element={<PurchaseOrderItemList />} />
-        <Route path="purchase-order-items/create" element={<PurchaseOrderItemCreate />} />
-        <Route path="purchase-order-items/search" element={<PurchaseOrderItemSearch />} />
-        <Route path="purchase-order-items/statistics" element={<PurchaseOrderItemStatistics />} />
-        <Route path="purchase-order-items/details/:id" element={<PurchaseOrderItemDetails />} />
-        <Route path="purchase-order-items/:id" element={<PurchaseOrderItemView />} />
-        <Route path="purchase-order-items/edit/:id" element={<PurchaseOrderItemEdit />} />
+<Route path="/purchase-order-items"element={<PurchaseOrderItemList />}/>
+<Route path="/purchase-order-items/create" element={<PurchaseOrderItemCreate />}/>
+<Route path="/purchase-order-items/view/:id" element={<PurchaseOrderItemView />}/>
+<Route path="/purchase-order-items/details/:id" element={<PurchaseOrderItemDetails />}/>
+<Route path="/purchase-order-items/edit/:id" element={<PurchaseOrderItemEdit />}/>
+<Route path="/purchase-order-items/delete/:id" element={<DeletePurchaseOrderItemDialog />}/>
 
         <Route path="purchase-returns" element={<PurchaseReturnList />} />
         <Route path="purchase-returns/create" element={<PurchaseReturnCreate />} />

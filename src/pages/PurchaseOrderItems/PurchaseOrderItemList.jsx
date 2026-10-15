@@ -3,16 +3,14 @@
 // ============================================================
 
 import React, {
+    useCallback,
     useEffect,
     useMemo,
     useState
 } from "react";
 
 import axios from "axios";
-
-import {
-    useNavigate
-} from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 import {
     Box,
@@ -40,21 +38,19 @@ import PurchaseOrderItemTable
 
 import PurchaseOrderItemPagination
     from "./PurchaseOrderItemPagination";
-import DeletePurchaseOrderItemDialog
-    from "./DeletePurchaseOrderItemDialog";
 
 // ============================================================
-// SERVER URL
+// NODE PROXY API
 // ============================================================
 
-const SERVER_URL = "http://localhost:5000";
+const API_URL =
+    "http://localhost:5000/api/purchase-order-items";
 
 // ============================================================
 // PURCHASE ORDER ITEM LIST
 // ============================================================
 
 const PurchaseOrderItemList = () => {
-
     const navigate = useNavigate();
 
     // ========================================================
@@ -62,18 +58,13 @@ const PurchaseOrderItemList = () => {
     // ========================================================
 
     const [items, setItems] = useState([]);
-
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [refreshing, setRefreshing] = useState(false);
 
     const [searchText, setSearchText] = useState("");
 
     const [page, setPage] = useState(1);
-
     const [pageSize, setPageSize] = useState(10);
-
-    const [selectedItem, setSelectedItem] = useState(null);
-
-    const [deleteOpen, setDeleteOpen] = useState(false);
 
     const [snackbar, setSnackbar] = useState({
         open: false,
@@ -82,644 +73,353 @@ const PurchaseOrderItemList = () => {
     });
 
     // ========================================================
-    // LOAD ALL PURCHASE ORDER ITEMS
-    //
-    // GET
-    // http://localhost:5000/api/purchase-order-items
+    // SNACKBAR
     // ========================================================
 
-    const loadItems = async () => {
-
-        try {
-
-            setLoading(true);
-
-            console.log(
-                "================================================="
-            );
-
-            console.log(
-                "GET ALL PURCHASE ORDER ITEMS"
-            );
-
-            console.log(
-                "URL:",
-                `${SERVER_URL}/api/purchase-order-items`
-            );
-
-            const response = await axios.get(
-                `${SERVER_URL}/api/purchase-order-items`
-            );
-
-            console.log(
-                "ALL PURCHASE ORDER ITEMS:",
-                response.data
-            );
-
-            const data = Array.isArray(response.data)
-                ? response.data
-                : [];
-
-            setItems(data);
-
-        }
-        catch (error) {
-
-            console.error(
-                "GET ALL PURCHASE ORDER ITEMS ERROR:",
-                error
-            );
-
-            console.error(
-                "RESPONSE:",
-                error.response?.data
-            );
-
-            setItems([]);
-
+    const showSnackbar = useCallback(
+        (message, severity = "success") => {
             setSnackbar({
                 open: true,
-                message:
+                message,
+                severity
+            });
+        },
+        []
+    );
+
+    const handleSnackbarClose = () => {
+        setSnackbar((previous) => ({
+            ...previous,
+            open: false
+        }));
+    };
+
+    // ========================================================
+    // LOAD ALL PURCHASE ORDER ITEMS
+    //
+    // GET http://localhost:5000/api/purchase-order-items
+    // ========================================================
+
+    const loadItems = useCallback(
+        async (isRefresh = false) => {
+            try {
+                if (isRefresh) {
+                    setRefreshing(true);
+                } else {
+                    setLoading(true);
+                }
+
+                const response = await axios.get(API_URL);
+
+                const responseData = response.data;
+
+                const records = Array.isArray(responseData)
+                    ? responseData
+                    : Array.isArray(responseData?.data)
+                        ? responseData.data
+                        : Array.isArray(responseData?.items)
+                            ? responseData.items
+                            : null;
+
+                if (!records) {
+                    throw new Error(
+                        "The API did not return a valid array of Purchase Order Items."
+                    );
+                }
+
+                // Keep only the fields returned by the simplified API.
+                const normalizedItems = records.map((item) => ({
+                    purchaseOrderItemId:
+                        item.purchaseOrderItemId ??
+                        item.PurchaseOrderItemId ??
+                        item.id ??
+                        item.Id,
+
+                    purchaseOrderId:
+                        item.purchaseOrderId ??
+                        item.PurchaseOrderId,
+
+                    sellerId:
+                        item.sellerId ??
+                        item.SellerId,
+
+                    customerId:
+                        item.customerId ??
+                        item.CustomerId,
+
+                    productId:
+                        item.productId ??
+                        item.ProductId,
+
+                    quantity:
+                        item.quantity ??
+                        item.Quantity ??
+                        0,
+
+                    unitPrice:
+                        item.unitPrice ??
+                        item.UnitPrice ??
+                        0,
+
+                    discount:
+                        item.discount ??
+                        item.Discount ??
+                        0,
+
+                    taxAmount:
+                        item.taxAmount ??
+                        item.TaxAmount ??
+                        0,
+
+                    totalAmount:
+                        item.totalAmount ??
+                        item.TotalAmount ??
+                        0
+                }));
+
+                setItems(normalizedItems);
+
+                console.log(
+                    "PURCHASE ORDER ITEMS:",
+                    normalizedItems
+                );
+            } catch (error) {
+                console.error(
+                    "LOAD PURCHASE ORDER ITEMS ERROR:",
+                    error
+                );
+
+                console.error(
+                    "API ERROR RESPONSE:",
+                    error.response?.data
+                );
+
+                setItems([]);
+
+                showSnackbar(
                     error.response?.data?.message ||
                     error.response?.data?.error ||
+                    error.message ||
                     "Unable to load Purchase Order Items.",
-                severity: "error"
-            });
-
-        }
-        finally {
-
-            setLoading(false);
-
-        }
-
-    };
+                    "error"
+                );
+            } finally {
+                setLoading(false);
+                setRefreshing(false);
+            }
+        },
+        [showSnackbar]
+    );
 
     // ========================================================
     // INITIAL LOAD
     // ========================================================
 
     useEffect(() => {
-
         loadItems();
-
-    }, []);
+    }, [loadItems]);
 
     // ========================================================
-    // CLIENT-SIDE SEARCH
+    // SEARCH
     // ========================================================
 
     const filteredItems = useMemo(() => {
-
-        const search =
-            (searchText || "")
-                .trim()
-                .toLowerCase();
+        const search = String(searchText || "")
+            .trim()
+            .toLowerCase();
 
         if (!search) {
-
             return items;
-
         }
 
         return items.filter((item) => {
-
             const searchableValues = [
-
-                item?.purchaseOrderItemId,
-
-                item?.purchaseOrderId,
-
-                item?.productId,
-
-                item?.quantity,
-
-                item?.unitPrice,
-
-                item?.discount,
-
-                item?.taxAmount,
-
-                item?.totalAmount,
-
-                item?.sellerId,
-
-                item?.customerId
-
+                item.purchaseOrderItemId,
+                item.purchaseOrderId,
+                item.sellerId,
+                item.customerId,
+                item.productId,
+                item.quantity,
+                item.unitPrice,
+                item.discount,
+                item.taxAmount,
+                item.totalAmount
             ];
 
-            return searchableValues.some(
-                (value) =>
-                    String(value ?? "")
-                        .toLowerCase()
-                        .includes(search)
+            return searchableValues.some((value) =>
+                String(value ?? "")
+                    .toLowerCase()
+                    .includes(search)
             );
-
         });
-
-    }, [
-        items,
-        searchText
-    ]);
+    }, [items, searchText]);
 
     // ========================================================
     // RESET PAGE WHEN SEARCH CHANGES
     // ========================================================
 
     useEffect(() => {
-
         setPage(1);
-
     }, [searchText]);
 
     // ========================================================
     // PAGINATION
     // ========================================================
 
-    const totalRecords =
-        filteredItems.length;
+    const totalRecords = filteredItems.length;
 
-    const totalPages =
-        Math.max(
-            1,
-            Math.ceil(
-                totalRecords / pageSize
-            )
-        );
+    const totalPages = Math.max(
+        1,
+        Math.ceil(totalRecords / pageSize)
+    );
 
-    const pagedItems =
-        filteredItems.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+    useEffect(() => {
+        if (page > totalPages) {
+            setPage(totalPages);
+        }
+    }, [page, totalPages]);
+
+    const pagedItems = useMemo(() => {
+        const startIndex = (page - 1) * pageSize;
+
+        return filteredItems.slice(
+            startIndex,
+            startIndex + pageSize
         );
+    }, [filteredItems, page, pageSize]);
 
     // ========================================================
     // STATISTICS
     // ========================================================
 
-    const statistics = useMemo(() => {
+    const statistics = useMemo(() => ({
+        totalItems: items.length,
 
-        return {
+        totalQuantity: items.reduce(
+            (sum, item) =>
+                sum + Number(item.quantity || 0),
+            0
+        ),
 
-            totalItems:
-                items.length,
+        totalAmount: items.reduce(
+            (sum, item) =>
+                sum + Number(item.totalAmount || 0),
+            0
+        ),
 
-            totalQuantity:
-                items.reduce(
-                    (sum, item) =>
-                        sum +
-                        Number(
-                            item?.quantity || 0
-                        ),
-                    0
-                ),
-
-            totalAmount:
-                items.reduce(
-                    (sum, item) =>
-                        sum +
-                        Number(
-                            item?.totalAmount || 0
-                        ),
-                    0
-                ),
-
-            totalTax:
-                items.reduce(
-                    (sum, item) =>
-                        sum +
-                        Number(
-                            item?.taxAmount || 0
-                        ),
-                    0
-                )
-
-        };
-
-    }, [items]);
+        totalTax: items.reduce(
+            (sum, item) =>
+                sum + Number(item.taxAmount || 0),
+            0
+        )
+    }), [items]);
 
     // ========================================================
-    // ADD / CREATE
-    // ========================================================
-const handleAdd = () => {
-
-    navigate(
-        "/purchase-order-items/create"
-    );
-
-};
-
-    // ========================================================
-    // VIEW
-    //
-    // ROUTE:
-    // /purchase-order-items/:id
+    // GET ITEM ID
     // ========================================================
 
-    const handleView = (item) => {
-
-        console.log(
-            "================================================="
-        );
-
-        console.log(
-            "VIEW PURCHASE ORDER ITEM"
-        );
-
-        console.log(
-            "SELECTED ITEM:",
-            item
-        );
-
-        const rawPurchaseOrderItemId =
+    const getItemId = (item) => {
+        const rawId =
             item?.purchaseOrderItemId ??
             item?.PurchaseOrderItemId ??
             item?.id ??
-            null;
+            item?.Id;
 
-        const purchaseOrderItemId =
-            Number(
-                rawPurchaseOrderItemId
-            );
+        const id = Number(rawId);
 
-        console.log(
-            "RAW ITEM ID:",
-            rawPurchaseOrderItemId
-        );
-
-        console.log(
-            "NORMALIZED ITEM ID:",
-            purchaseOrderItemId
-        );
-
-        if (
-            !Number.isInteger(
-                purchaseOrderItemId
-            ) ||
-            purchaseOrderItemId <= 0
-        ) {
-
-            setSnackbar({
-                open: true,
-                message:
-                    "Invalid Purchase Order Item ID.",
-                severity: "error"
-            });
-
-            return;
-
-        }
-
-        const route =
-            `/purchase-order-items/${purchaseOrderItemId}`;
-
-        console.log(
-            "NAVIGATING TO:",
-            route
-        );
-
-        navigate(route);
-
+        return Number.isInteger(id) && id > 0
+            ? id
+            : null;
     };
 
     // ========================================================
-    // EDIT
+    // CREATE PAGE
     //
-    // ROUTE:
+    // /purchase-order-items/create
+    // ========================================================
+
+    const handleAdd = () => {
+        navigate("/purchase-order-items/create");
+    };
+
+    // ========================================================
+    // VIEW PAGE
+    //
+    // /purchase-order-items/view/:id
+    // ========================================================
+
+    const handleView = (item) => {
+        const id = getItemId(item);
+
+        if (!id) {
+            showSnackbar(
+                "Invalid Purchase Order Item ID.",
+                "error"
+            );
+            return;
+        }
+
+        navigate(`/purchase-order-items/view/${id}`);
+    };
+
+    // ========================================================
+    // DETAILS PAGE
+    //
+    // /purchase-order-items/details/:id
+    // ========================================================
+
+    const handleDetails = (item) => {
+        const id = getItemId(item);
+
+        if (!id) {
+            showSnackbar(
+                "Invalid Purchase Order Item ID.",
+                "error"
+            );
+            return;
+        }
+
+        navigate(`/purchase-order-items/details/${id}`);
+    };
+
+    // ========================================================
+    // EDIT PAGE
+    //
     // /purchase-order-items/edit/:id
     // ========================================================
 
     const handleEdit = (item) => {
+        const id = getItemId(item);
 
-        console.log(
-            "================================================="
-        );
-
-        console.log(
-            "EDIT PURCHASE ORDER ITEM"
-        );
-
-        console.log(
-            "SELECTED ITEM:",
-            item
-        );
-
-        const rawPurchaseOrderItemId =
-            item?.purchaseOrderItemId ??
-            item?.PurchaseOrderItemId ??
-            item?.id ??
-            null;
-
-        const purchaseOrderItemId =
-            Number(
-                rawPurchaseOrderItemId
+        if (!id) {
+            showSnackbar(
+                "Invalid Purchase Order Item ID.",
+                "error"
             );
-
-        console.log(
-            "RAW PURCHASE ORDER ITEM ID:",
-            rawPurchaseOrderItemId
-        );
-
-        console.log(
-            "NORMALIZED PURCHASE ORDER ITEM ID:",
-            purchaseOrderItemId
-        );
-
-        if (
-            !Number.isInteger(
-                purchaseOrderItemId
-            ) ||
-            purchaseOrderItemId <= 0
-        ) {
-
-            setSnackbar({
-                open: true,
-                message:
-                    "Invalid Purchase Order Item ID.",
-                severity: "error"
-            });
-
             return;
-
         }
 
-        const route =
-            `/purchase-order-items/edit/${purchaseOrderItemId}`;
-
-        console.log(
-            "NAVIGATING TO:",
-            route
-        );
-
-        navigate(route);
-
+        navigate(`/purchase-order-items/edit/${id}`);
     };
 
     // ========================================================
-    // DELETE
+    // DELETE PAGE
+    //
+    // /purchase-order-items/delete/:id
     // ========================================================
 
     const handleDelete = (item) => {
+        const id = getItemId(item);
 
-        console.log(
-            "================================================="
-        );
-
-        console.log(
-            "DELETE PURCHASE ORDER ITEM SELECTED:"
-        );
-
-        console.log(
-            item
-        );
-
-        const rawPurchaseOrderItemId =
-            item?.purchaseOrderItemId ??
-            item?.PurchaseOrderItemId ??
-            item?.id ??
-            null;
-
-        const purchaseOrderItemId =
-            Number(
-                rawPurchaseOrderItemId
+        if (!id) {
+            showSnackbar(
+                "Invalid Purchase Order Item ID.",
+                "error"
             );
-
-        console.log(
-            "DELETE ITEM ID:",
-            purchaseOrderItemId
-        );
-
-        if (
-            !Number.isInteger(
-                purchaseOrderItemId
-            ) ||
-            purchaseOrderItemId <= 0
-        ) {
-
-            setSnackbar({
-                open: true,
-                message:
-                    "Invalid Purchase Order Item ID.",
-                severity: "error"
-            });
-
             return;
-
         }
 
-        setSelectedItem({
-
-            ...item,
-
-            purchaseOrderItemId
-
-        });
-
-        setDeleteOpen(true);
-
-    };
-
-    // ========================================================
-    // CREATE
-    //
-    // POST
-    // /api/purchase-order-items
-    // ========================================================
-
-    const handleCreate = async (data) => {
-
-        try {
-
-            console.log(
-                "================================================="
-            );
-
-            console.log(
-                "CREATE PURCHASE ORDER ITEM"
-            );
-
-            console.log(
-                "PAYLOAD:",
-                data
-            );
-
-            await axios.post(
-                `${SERVER_URL}/api/purchase-order-items`,
-                data,
-                {
-                    headers: {
-                        "Content-Type":
-                            "application/json"
-                    }
-                }
-            );
-
-            console.log(
-                "PURCHASE ORDER ITEM CREATED SUCCESSFULLY"
-            );
-
-            setCreateOpen(false);
-
-            setSelectedItem(null);
-
-            await loadItems();
-
-            setSnackbar({
-                open: true,
-                message:
-                    "Purchase Order Item created successfully.",
-                severity: "success"
-            });
-
-        }
-        catch (error) {
-
-            console.error(
-                "CREATE PURCHASE ORDER ITEM ERROR:",
-                error
-            );
-
-            console.error(
-                "CREATE RESPONSE:",
-                error.response?.data
-            );
-
-            setSnackbar({
-                open: true,
-                message:
-                    error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    "Failed to create Purchase Order Item.",
-                severity: "error"
-            });
-
-        }
-
-    };
-
-    // ========================================================
-    // DELETE CONFIRM
-    //
-    // DELETE
-    // /api/purchase-order-items/:id
-    // ========================================================
-
-    const handleDeleteConfirm = async (id) => {
-
-        try {
-
-            const purchaseOrderItemId =
-                Number(id);
-
-            console.log(
-                "================================================="
-            );
-
-            console.log(
-                "DELETE PURCHASE ORDER ITEM"
-            );
-
-            console.log(
-                "ITEM ID:",
-                purchaseOrderItemId
-            );
-
-            console.log(
-                "DELETE URL:",
-                `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-            );
-
-            if (
-                !Number.isInteger(
-                    purchaseOrderItemId
-                ) ||
-                purchaseOrderItemId <= 0
-            ) {
-
-                setSnackbar({
-                    open: true,
-                    message:
-                        "Purchase Order Item ID is required.",
-                    severity: "error"
-                });
-
-                return;
-
-            }
-
-            await axios.delete(
-                `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-            );
-
-            console.log(
-                "PURCHASE ORDER ITEM DELETED SUCCESSFULLY"
-            );
-
-            setDeleteOpen(false);
-
-            setSelectedItem(null);
-
-            await loadItems();
-
-            setSnackbar({
-                open: true,
-                message:
-                    "Purchase Order Item deleted successfully.",
-                severity: "success"
-            });
-
-        }
-        catch (error) {
-
-            console.error(
-                "DELETE PURCHASE ORDER ITEM ERROR:",
-                error
-            );
-
-            console.error(
-                "DELETE RESPONSE:",
-                error.response?.data
-            );
-
-            setSnackbar({
-                open: true,
-                message:
-                    error.response?.data?.message ||
-                    error.response?.data?.error ||
-                    "Failed to delete Purchase Order Item.",
-                severity: "error"
-            });
-
-        }
-
-    };
-
-
-    // ========================================================
-    // CLOSE DELETE
-    // ========================================================
-
-    const handleDeleteClose = () => {
-
-        setDeleteOpen(false);
-
-        setSelectedItem(null);
-
-    };
-
-    // ========================================================
-    // CLOSE SNACKBAR
-    // ========================================================
-
-    const handleSnackbarClose = () => {
-
-        setSnackbar(
-            (previous) => ({
-                ...previous,
-                open: false
-            })
-        );
-
+        navigate(`/purchase-order-items/delete/${id}`);
     };
 
     // ========================================================
@@ -727,22 +427,16 @@ const handleAdd = () => {
     // ========================================================
 
     if (loading) {
-
         return (
-
             <Box
                 display="flex"
                 justifyContent="center"
                 alignItems="center"
                 minHeight="300px"
             >
-
                 <CircularProgress />
-
             </Box>
-
         );
-
     }
 
     // ========================================================
@@ -750,14 +444,9 @@ const handleAdd = () => {
     // ========================================================
 
     return (
+        <Box className="purchase-order-items-container">
 
-        <Box
-            className="purchase-order-items-container"
-        >
-
-            {/* =================================================
-                TITLE
-            ================================================= */}
+            {/* TITLE */}
 
             <Typography
                 variant="h4"
@@ -767,46 +456,38 @@ const handleAdd = () => {
                 Purchase Order Items
             </Typography>
 
-            {/* =================================================
-                TOOLBAR
-            ================================================= */}
+            {/* TOOLBAR */}
 
             <PurchaseOrderItemToolbar
                 onAdd={handleAdd}
-                onRefresh={loadItems}
+                onRefresh={() => loadItems(true)}
+                refreshing={refreshing}
             />
 
-            {/* =================================================
-                STATISTICS
-            ================================================= */}
+            {/* STATISTICS */}
 
             <PurchaseOrderItemStatistics
                 statistics={statistics}
             />
 
-            {/* =================================================
-                SEARCH
-            ================================================= */}
+            {/* SEARCH */}
 
             <PurchaseOrderItemSearch
                 searchText={searchText}
                 setSearchText={setSearchText}
             />
 
-            {/* =================================================
-                TABLE
-            ================================================= */}
+            {/* TABLE */}
 
             <PurchaseOrderItemTable
                 items={pagedItems}
                 onView={handleView}
+                onDetails={handleDetails}
                 onEdit={handleEdit}
                 onDelete={handleDelete}
             />
 
-            {/* =================================================
-                PAGINATION
-            ================================================= */}
+            {/* PAGINATION */}
 
             <PurchaseOrderItemPagination
                 page={page}
@@ -815,27 +496,19 @@ const handleAdd = () => {
                 totalRecords={totalRecords}
                 onPageChange={setPage}
                 onPageSizeChange={(size) => {
+                    const newSize = Number(size);
 
-                    setPageSize(size);
-
-                    setPage(1);
-
+                    if (
+                        Number.isInteger(newSize) &&
+                        newSize > 0
+                    ) {
+                        setPageSize(newSize);
+                        setPage(1);
+                    }
                 }}
             />
-            {/* =================================================
-                DELETE DIALOG
-            ================================================= */}
 
-            <DeletePurchaseOrderItemDialog
-                open={deleteOpen}
-                item={selectedItem}
-                onClose={handleDeleteClose}
-                onDeleted={handleDeleteConfirm}
-            />
-
-            {/* =================================================
-                SNACKBAR
-            ================================================= */}
+            {/* SNACKBAR */}
 
             <Snackbar
                 open={snackbar.open}
@@ -846,7 +519,6 @@ const handleAdd = () => {
                     horizontal: "right"
                 }}
             >
-
                 <Alert
                     severity={snackbar.severity}
                     onClose={handleSnackbarClose}
@@ -854,13 +526,10 @@ const handleAdd = () => {
                 >
                     {snackbar.message}
                 </Alert>
-
             </Snackbar>
 
         </Box>
-
     );
-
 };
 
 export default PurchaseOrderItemList;

@@ -3,16 +3,8 @@
 // Full Page Purchase Order Item Edit
 // ============================================================
 
-import React, {
-    useEffect,
-    useState
-} from "react";
-
-import {
-    useNavigate,
-    useParams
-} from "react-router-dom";
-
+import React, { useCallback, useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 import {
@@ -30,16 +22,13 @@ import {
     Typography
 } from "@mui/material";
 
-import {
-    ArrowBack,
-    Save
-} from "@mui/icons-material";
+import { ArrowBack, Save, Refresh } from "@mui/icons-material";
 
 // ============================================================
-// SERVER URL
+// NODE PROXY API
 // ============================================================
 
-const SERVER_URL = "http://localhost:5000";
+const API_URL = "http://localhost:5000/api/purchase-order-items";
 
 // ============================================================
 // INITIAL FORM
@@ -48,6 +37,8 @@ const SERVER_URL = "http://localhost:5000";
 const initialFormData = {
     PurchaseOrderItemId: "",
     PurchaseOrderId: "",
+    SellerId: "",
+    CustomerId: "",
     ProductId: "",
     Quantity: "",
     UnitPrice: "",
@@ -57,25 +48,58 @@ const initialFormData = {
 };
 
 // ============================================================
+// NORMALIZE API RESPONSE
+// ============================================================
+
+const normalizeItem = (item, requestedId) => {
+    if (!item || typeof item !== "object") {
+        return null;
+    }
+
+    const itemId =
+        item.purchaseOrderItemId ??
+        item.PurchaseOrderItemId ??
+        item.id ??
+        item.Id;
+
+    if (itemId == null) {
+        return null;
+    }
+
+    return {
+        PurchaseOrderItemId: itemId ?? requestedId,
+        PurchaseOrderId:
+            item.purchaseOrderId ?? item.PurchaseOrderId ?? "",
+        SellerId:
+            item.sellerId ?? item.SellerId ?? "",
+        CustomerId:
+            item.customerId ?? item.CustomerId ?? "",
+        ProductId:
+            item.productId ?? item.ProductId ?? "",
+        Quantity:
+            item.quantity ?? item.Quantity ?? "",
+        UnitPrice:
+            item.unitPrice ?? item.UnitPrice ?? "",
+        Discount:
+            item.discount ?? item.Discount ?? 0,
+        TaxAmount:
+            item.taxAmount ?? item.TaxAmount ?? 0,
+        TotalAmount:
+            item.totalAmount ?? item.TotalAmount ?? 0
+    };
+};
+
+// ============================================================
 // COMPONENT
 // ============================================================
 
 const PurchaseOrderItemEdit = () => {
-
     const navigate = useNavigate();
-
     const { id } = useParams();
 
-    // ========================================================
-    // STATE
-    // ========================================================
-
     const [formData, setFormData] = useState(initialFormData);
-
     const [loading, setLoading] = useState(true);
-
     const [saving, setSaving] = useState(false);
-
     const [error, setError] = useState("");
 
     const [snackbar, setSnackbar] = useState({
@@ -85,150 +109,146 @@ const PurchaseOrderItemEdit = () => {
     });
 
     // ========================================================
-    // GET ITEM
+    // LOAD ITEM BY ID; FALL BACK TO /ALL
     // ========================================================
 
-    useEffect(() => {
+    const loadPurchaseOrderItem = useCallback(async () => {
+        const requestedId = Number(id);
 
-        const loadPurchaseOrderItem = async () => {
+        if (!Number.isInteger(requestedId) || requestedId <= 0) {
+            setError("Invalid Purchase Order Item ID.");
+            setLoading(false);
+            return;
+        }
 
-            const purchaseOrderItemId = Number(id);
+        setLoading(true);
+        setError("");
 
-            if (
-                !Number.isInteger(purchaseOrderItemId) ||
-                purchaseOrderItemId <= 0
-            ) {
-                setError("Invalid Purchase Order Item ID.");
-                setLoading(false);
-                return;
+        try {
+            let item = null;
+
+            // First try the individual endpoint.
+            try {
+                const response = await axios.get(
+                    `${API_URL}/${encodeURIComponent(requestedId)}`
+                );
+
+                const data = response.data;
+
+                item = normalizeItem(
+                    data?.data ?? data?.item ?? data,
+                    requestedId
+                );
+
+                // Prevent accidentally loading a different record.
+                if (
+                    item &&
+                    Number(item.PurchaseOrderItemId) !== requestedId
+                ) {
+                    item = null;
+                }
+            } catch (detailError) {
+                console.warn(
+                    "Individual item endpoint failed; trying /all.",
+                    detailError?.response?.status || detailError.message
+                );
             }
 
-            try {
+            // Fallback to the working collection endpoint.
+            if (!item) {
+                const response = await axios.get(`${API_URL}/all`);
+                const data = response.data;
 
-                setLoading(true);
-                setError("");
+                const records = Array.isArray(data)
+                    ? data
+                    : Array.isArray(data?.data)
+                        ? data.data
+                        : Array.isArray(data?.items)
+                            ? data.items
+                            : [];
 
-                console.log(
-                    "GET PURCHASE ORDER ITEM:",
-                    purchaseOrderItemId
-                );
+                const found = records.find((record) => {
+                    const recordId =
+                        record.purchaseOrderItemId ??
+                        record.PurchaseOrderItemId ??
+                        record.id ??
+                        record.Id;
 
-                console.log(
-                    "GET URL:",
-                    `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-                );
-
-                const response = await axios.get(
-                    `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-                );
-
-                console.log(
-                    "PURCHASE ORDER ITEM RESPONSE:",
-                    response.data
-                );
-
-                const item = response.data;
-
-                setFormData({
-                    PurchaseOrderItemId:
-                        item?.purchaseOrderItemId ??
-                        item?.PurchaseOrderItemId ??
-                        item?.id ??
-                        purchaseOrderItemId,
-
-                    PurchaseOrderId:
-                        item?.purchaseOrderId ??
-                        item?.PurchaseOrderId ??
-                        "",
-
-                    ProductId:
-                        item?.productId ??
-                        item?.ProductId ??
-                        "",
-
-                    Quantity:
-                        item?.quantity ??
-                        item?.Quantity ??
-                        "",
-
-                    UnitPrice:
-                        item?.unitPrice ??
-                        item?.UnitPrice ??
-                        "",
-
-                    Discount:
-                        item?.discount ??
-                        item?.Discount ??
-                        0,
-
-                    TaxAmount:
-                        item?.taxAmount ??
-                        item?.TaxAmount ??
-                        0,
-
-                    TotalAmount:
-                        item?.totalAmount ??
-                        item?.TotalAmount ??
-                        0
+                    return Number(recordId) === requestedId;
                 });
 
-            } catch (err) {
-
-                console.error(
-                    "FAILED TO LOAD PURCHASE ORDER ITEM:",
-                    err
-                );
-
-                const message =
-                    err?.response?.data?.message ||
-                    err?.response?.data?.error ||
-                    "Failed to load Purchase Order Item.";
-
-                setError(message);
-
-            } finally {
-
-                setLoading(false);
-
+                item = normalizeItem(found, requestedId);
             }
-        };
 
-        loadPurchaseOrderItem();
+            if (!item) {
+                throw new Error(
+                    `Purchase Order Item ID ${requestedId} was not found.`
+                );
+            }
 
+            setFormData({
+                ...initialFormData,
+                ...item
+            });
+        } catch (err) {
+            console.error("Failed to load Purchase Order Item:", err);
+
+            setError(
+                err?.response?.data?.message ||
+                err?.response?.data?.error ||
+                err.message ||
+                "Failed to load Purchase Order Item."
+            );
+        } finally {
+            setLoading(false);
+        }
     }, [id]);
 
-    // ========================================================
-    // CALCULATE TOTAL
-    // ========================================================
-
     useEffect(() => {
+        loadPurchaseOrderItem();
+    }, [loadPurchaseOrderItem]);
 
-        const quantity =
-            Number(formData.Quantity) || 0;
+    // ========================================================
+    // HANDLE FIELD CHANGES
+    // ========================================================
 
-        const unitPrice =
-            Number(formData.UnitPrice) || 0;
-
-        const discount =
-            Number(formData.Discount) || 0;
-
-        const taxAmount =
-            Number(formData.TaxAmount) || 0;
-
-        const subtotal =
-            quantity * unitPrice;
-
-        const total =
-            Math.max(
-                0,
-                subtotal - discount + taxAmount
-            );
+    const handleChange = (event) => {
+        const { name, value } = event.target;
 
         setFormData((previous) => ({
             ...previous,
-            TotalAmount: total.toFixed(2)
+            [name]: value
         }));
+    };
 
+    // ========================================================
+    // CALCULATE TOTAL
+    // Total = Quantity * Unit Price - Discount + Tax
+    // ========================================================
+
+    useEffect(() => {
+        const quantity = Number(formData.Quantity) || 0;
+        const unitPrice = Number(formData.UnitPrice) || 0;
+        const discount = Number(formData.Discount) || 0;
+        const taxAmount = Number(formData.TaxAmount) || 0;
+
+        const total = Math.max(
+            0,
+            quantity * unitPrice - discount + taxAmount
+        );
+
+        setFormData((previous) => {
+            const nextTotal = total.toFixed(2);
+
+            if (previous.TotalAmount === nextTotal) {
+                return previous;
+            }
+
+            return {
+                ...previous,
+                TotalAmount: nextTotal
+            };
+        });
     }, [
         formData.Quantity,
         formData.UnitPrice,
@@ -237,162 +257,126 @@ const PurchaseOrderItemEdit = () => {
     ]);
 
     // ========================================================
-    // HANDLE CHANGE
+    // SAVE CHANGES
     // ========================================================
 
-    const handleChange = (event) => {
+    const handleSave = async (event) => {
+        event.preventDefault();
 
-        const {
-            name,
-            value
-        } = event.target;
+        const itemId = Number(formData.PurchaseOrderItemId);
+        const purchaseOrderId = Number(formData.PurchaseOrderId);
+        const productId = Number(formData.ProductId);
+        const quantity = Number(formData.Quantity);
+        const unitPrice = Number(formData.UnitPrice);
+        const discount = Number(formData.Discount);
+        const taxAmount = Number(formData.TaxAmount);
 
-        setFormData((previous) => ({
-            ...previous,
-            [name]: value
-        }));
-
-    };
-
-    // ========================================================
-    // SAVE
-    // ========================================================
-
-    const handleSave = async () => {
-
-        const purchaseOrderItemId =
-            Number(formData.PurchaseOrderItemId);
-
-        if (
-            !Number.isInteger(purchaseOrderItemId) ||
-            purchaseOrderItemId <= 0
-        ) {
+        if (!Number.isInteger(itemId) || itemId <= 0) {
             setSnackbar({
                 open: true,
-                message: "Purchase Order Item ID is required.",
+                message: "Invalid Purchase Order Item ID.",
                 severity: "error"
             });
+            return;
+        }
 
+        if (!Number.isInteger(purchaseOrderId) || purchaseOrderId <= 0) {
+            setSnackbar({
+                open: true,
+                message: "Enter a valid Purchase Order ID.",
+                severity: "error"
+            });
+            return;
+        }
+
+        if (!Number.isInteger(productId) || productId <= 0) {
+            setSnackbar({
+                open: true,
+                message: "Enter a valid Product ID.",
+                severity: "error"
+            });
             return;
         }
 
         if (
-            !Number(formData.PurchaseOrderId) ||
-            Number(formData.PurchaseOrderId) <= 0
+            !Number.isFinite(quantity) ||
+            quantity <= 0 ||
+            !Number.isFinite(unitPrice) ||
+            unitPrice < 0 ||
+            !Number.isFinite(discount) ||
+            discount < 0 ||
+            !Number.isFinite(taxAmount) ||
+            taxAmount < 0
         ) {
             setSnackbar({
                 open: true,
-                message: "Purchase Order ID is required.",
+                message:
+                    "Enter a valid quantity, unit price, discount, and tax amount.",
                 severity: "error"
             });
-
             return;
         }
 
-        if (
-            !Number(formData.ProductId) ||
-            Number(formData.ProductId) <= 0
-        ) {
-            setSnackbar({
-                open: true,
-                message: "Product ID is required.",
-                severity: "error"
-            });
-
-            return;
-        }
+        const totalAmount = Math.max(
+            0,
+            quantity * unitPrice - discount + taxAmount
+        );
 
         const payload = {
-            PurchaseOrderItemId:
-                purchaseOrderItemId,
-
-            PurchaseOrderId:
-                Number(formData.PurchaseOrderId),
-
-            ProductId:
-                Number(formData.ProductId),
-
-            Quantity:
-                Number(formData.Quantity) || 0,
-
-            UnitPrice:
-                Number(formData.UnitPrice) || 0,
-
-            Discount:
-                Number(formData.Discount) || 0,
-
-            TaxAmount:
-                Number(formData.TaxAmount) || 0,
-
-            TotalAmount:
-                Number(formData.TotalAmount) || 0
+            PurchaseOrderItemId: itemId,
+            PurchaseOrderId: purchaseOrderId,
+            ProductId: productId,
+            Quantity: quantity,
+            UnitPrice: unitPrice,
+            Discount: discount,
+            TaxAmount: taxAmount,
+            TotalAmount: Number(totalAmount.toFixed(2))
         };
 
-        console.log(
-            "UPDATE PURCHASE ORDER ITEM"
-        );
+        // Preserve tenant fields if your backend update model requires them.
+        if (formData.SellerId !== "" && formData.SellerId != null) {
+            payload.SellerId = Number(formData.SellerId);
+        }
 
-        console.log(
-            "ITEM ID:",
-            purchaseOrderItemId
-        );
+        if (formData.CustomerId !== "" && formData.CustomerId != null) {
+            payload.CustomerId = Number(formData.CustomerId);
+        }
 
-        console.log(
-            "PAYLOAD:",
-            payload
-        );
-
-        console.log(
-            "PUT URL:",
-            `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`
-        );
+        setSaving(true);
 
         try {
-
-            setSaving(true);
+            console.log("PUT URL:", `${API_URL}/${itemId}`);
+            console.log("UPDATE PAYLOAD:", payload);
 
             await axios.put(
-                `${SERVER_URL}/api/purchase-order-items/${purchaseOrderItemId}`,
+                `${API_URL}/${encodeURIComponent(itemId)}`,
                 payload
             );
 
             setSnackbar({
                 open: true,
-                message:
-                    "Purchase Order Item updated successfully.",
+                message: "Purchase Order Item updated successfully.",
                 severity: "success"
             });
 
-            setTimeout(() => {
-
-                navigate(
-                    "/purchase-order-items"
-                );
-
+            // Navigate after the success message has had time to display.
+            window.setTimeout(() => {
+                navigate("/purchase-order-items");
             }, 800);
-
         } catch (err) {
-
-            console.error(
-                "FAILED TO UPDATE PURCHASE ORDER ITEM:",
-                err
-            );
-
-            const message =
-                err?.response?.data?.message ||
-                err?.response?.data?.error ||
-                "Failed to update Purchase Order Item.";
+            console.error("Failed to update Purchase Order Item:", err);
 
             setSnackbar({
                 open: true,
-                message,
+                message:
+                    err?.response?.data?.message ||
+                    err?.response?.data?.error ||
+                    err.message ||
+                    "Failed to update Purchase Order Item.",
                 severity: "error"
             });
-
         } finally {
-
             setSaving(false);
-
         }
     };
 
@@ -401,11 +385,7 @@ const PurchaseOrderItemEdit = () => {
     // ========================================================
 
     const handleBack = () => {
-
-        navigate(
-            "/purchase-order-items"
-        );
-
+        navigate("/purchase-order-items");
     };
 
     // ========================================================
@@ -413,20 +393,23 @@ const PurchaseOrderItemEdit = () => {
     // ========================================================
 
     if (loading) {
-
         return (
             <Box
                 sx={{
-                    minHeight: "400px",
+                    minHeight: 400,
                     display: "flex",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 2
                 }}
             >
                 <CircularProgress />
+                <Typography color="text.secondary">
+                    Loading Purchase Order Item...
+                </Typography>
             </Box>
         );
-
     }
 
     // ========================================================
@@ -434,59 +417,50 @@ const PurchaseOrderItemEdit = () => {
     // ========================================================
 
     if (error) {
-
         return (
             <Box sx={{ p: 3 }}>
+                <Alert severity="error">{error}</Alert>
 
-                <Alert severity="error">
-                    {error}
-                </Alert>
-
-                <Button
+                <Stack
+                    direction={{ xs: "column", sm: "row" }}
+                    spacing={2}
                     sx={{ mt: 2 }}
-                    variant="outlined"
-                    startIcon={<ArrowBack />}
-                    onClick={handleBack}
                 >
-                    Back to Purchase Order Items
-                </Button>
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={handleBack}
+                    >
+                        Back to Purchase Order Items
+                    </Button>
 
+                    <Button
+                        variant="contained"
+                        startIcon={<Refresh />}
+                        onClick={loadPurchaseOrderItem}
+                    >
+                        Retry
+                    </Button>
+                </Stack>
             </Box>
         );
-
     }
 
     // ========================================================
-    // PAGE
+    // EDIT PAGE
     // ========================================================
 
     return (
-        <Box sx={{ p: 3 }}>
-
-            {/* ==================================================
-                HEADER
-            ================================================== */}
-
+        <Box sx={{ p: { xs: 2, md: 3 } }}>
             <Stack
-                direction={{
-                    xs: "column",
-                    sm: "row"
-                }}
+                direction={{ xs: "column", sm: "row" }}
                 justifyContent="space-between"
-                alignItems={{
-                    xs: "flex-start",
-                    sm: "center"
-                }}
+                alignItems={{ xs: "flex-start", sm: "center" }}
                 spacing={2}
                 sx={{ mb: 3 }}
             >
-
                 <Box>
-
-                    <Typography
-                        variant="h4"
-                        fontWeight="bold"
-                    >
+                    <Typography variant="h4" fontWeight="bold">
                         Edit Purchase Order Item
                     </Typography>
 
@@ -498,270 +472,155 @@ const PurchaseOrderItemEdit = () => {
                         Update Purchase Order Item #
                         {formData.PurchaseOrderItemId}
                     </Typography>
-
                 </Box>
 
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBack />}
                     onClick={handleBack}
+                    disabled={saving}
                 >
                     Back
                 </Button>
-
             </Stack>
 
-            {/* ==================================================
-                FORM CARD
-            ================================================== */}
-
             <Card>
-
-                <CardContent>
-
-                    <Typography
-                        variant="h6"
-                        fontWeight="bold"
-                        sx={{ mb: 2 }}
-                    >
+                <CardContent sx={{ p: { xs: 2, md: 3 } }}>
+                    <Typography variant="h6" fontWeight="bold" sx={{ mb: 2 }}>
                         Purchase Order Item Information
                     </Typography>
 
                     <Divider sx={{ mb: 3 }} />
 
-                    <Grid
-                        container
-                        spacing={3}
-                    >
+                    <Box component="form" onSubmit={handleSave}>
+                        <Grid container spacing={3}>
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Purchase Order Item ID"
+                                    value={formData.PurchaseOrderItemId}
+                                    disabled
+                                />
+                            </Grid>
 
-                        {/* ======================================
-                            ITEM ID
-                        ====================================== */}
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Purchase Order ID"
+                                    name="PurchaseOrderId"
+                                    type="number"
+                                    value={formData.PurchaseOrderId}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 1, step: 1 }}
+                                />
+                            </Grid>
 
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Purchase Order Item ID"
-                                name="PurchaseOrderItemId"
-                                value={
-                                    formData.PurchaseOrderItemId
-                                }
-                                disabled
-                            />
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Product ID"
+                                    name="ProductId"
+                                    type="number"
+                                    value={formData.ProductId}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 1, step: 1 }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Quantity"
+                                    name="Quantity"
+                                    type="number"
+                                    value={formData.Quantity}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 0.01, step: "0.01" }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    required
+                                    label="Unit Price"
+                                    name="UnitPrice"
+                                    type="number"
+                                    value={formData.UnitPrice}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 0, step: "0.01" }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Discount"
+                                    name="Discount"
+                                    type="number"
+                                    value={formData.Discount}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 0, step: "0.01" }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Tax Amount"
+                                    name="TaxAmount"
+                                    type="number"
+                                    value={formData.TaxAmount}
+                                    onChange={handleChange}
+                                    inputProps={{ min: 0, step: "0.01" }}
+                                />
+                            </Grid>
+
+                            <Grid item xs={12} md={6}>
+                                <TextField
+                                    fullWidth
+                                    label="Total Amount"
+                                    value={formData.TotalAmount}
+                                    disabled
+                                />
+                            </Grid>
                         </Grid>
 
-                        {/* ======================================
-                            PURCHASE ORDER ID
-                        ====================================== */}
+                        <Divider sx={{ my: 3 }} />
 
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
+                        <Stack
+                            direction={{ xs: "column", sm: "row" }}
+                            spacing={2}
+                            justifyContent="flex-end"
                         >
-                            <TextField
-                                fullWidth
-                                label="Purchase Order ID"
-                                name="PurchaseOrderId"
-                                type="number"
-                                value={
-                                    formData.PurchaseOrderId
+                            <Button
+                                variant="outlined"
+                                startIcon={<ArrowBack />}
+                                onClick={handleBack}
+                                disabled={saving}
+                            >
+                                Cancel
+                            </Button>
+
+                            <Button
+                                type="submit"
+                                variant="contained"
+                                startIcon={
+                                    saving
+                                        ? <CircularProgress size={18} color="inherit" />
+                                        : <Save />
                                 }
-                                onChange={handleChange}
-                            />
-                        </Grid>
-
-                        {/* ======================================
-                            PRODUCT ID
-                        ====================================== */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Product ID"
-                                name="ProductId"
-                                type="number"
-                                value={
-                                    formData.ProductId
-                                }
-                                onChange={handleChange}
-                            />
-                        </Grid>
-
-                        {/* ======================================
-                            QUANTITY
-                        ====================================== */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Quantity"
-                                name="Quantity"
-                                type="number"
-                                value={
-                                    formData.Quantity
-                                }
-                                onChange={handleChange}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
-
-                        {/* ======================================
-                            UNIT PRICE
-                        ====================================== */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Unit Price"
-                                name="UnitPrice"
-                                type="number"
-                                value={
-                                    formData.UnitPrice
-                                }
-                                onChange={handleChange}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
-
-                        {/* ======================================
-                            DISCOUNT
-                        ====================================== */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Discount"
-                                name="Discount"
-                                type="number"
-                                value={
-                                    formData.Discount
-                                }
-                                onChange={handleChange}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
-
-                        {/* ======================================
-                            TAX
-                        ====================================== */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Tax Amount"
-                                name="TaxAmount"
-                                type="number"
-                                value={
-                                    formData.TaxAmount
-                                }
-                                onChange={handleChange}
-                                inputProps={{
-                                    min: 0,
-                                    step: "0.01"
-                                }}
-                            />
-                        </Grid>
-
-                        {/* ======================================
-                            TOTAL
-                        ====================================== */}
-
-                        <Grid
-                            item
-                            xs={12}
-                            md={6}
-                        >
-                            <TextField
-                                fullWidth
-                                label="Total Amount"
-                                name="TotalAmount"
-                                value={
-                                    formData.TotalAmount
-                                }
-                                disabled
-                            />
-                        </Grid>
-
-                    </Grid>
-
-                    {/* ==================================================
-                        ACTIONS
-                    ================================================== */}
-
-                    <Divider sx={{ my: 3 }} />
-
-                    <Stack
-                        direction={{
-                            xs: "column",
-                            sm: "row"
-                        }}
-                        spacing={2}
-                        justifyContent="flex-end"
-                    >
-
-                        <Button
-                            variant="outlined"
-                            startIcon={<ArrowBack />}
-                            onClick={handleBack}
-                            disabled={saving}
-                        >
-                            Cancel
-                        </Button>
-
-                        <Button
-                            variant="contained"
-                            startIcon={<Save />}
-                            onClick={handleSave}
-                            disabled={saving}
-                        >
-                            {saving
-                                ? "Saving..."
-                                : "Save Changes"}
-                        </Button>
-
-                    </Stack>
-
+                                disabled={saving}
+                            >
+                                {saving ? "Saving..." : "Save Changes"}
+                            </Button>
+                        </Stack>
+                    </Box>
                 </CardContent>
-
             </Card>
-
-            {/* ==================================================
-                SNACKBAR
-            ================================================== */}
 
             <Snackbar
                 open={snackbar.open}
@@ -790,7 +649,6 @@ const PurchaseOrderItemEdit = () => {
                     {snackbar.message}
                 </Alert>
             </Snackbar>
-
         </Box>
     );
 };

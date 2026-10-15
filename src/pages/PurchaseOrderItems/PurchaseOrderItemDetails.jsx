@@ -1,193 +1,120 @@
-import React, {
-useEffect,
-useState
-} from "react";
+// ============================================================
+// PurchaseOrderItemDetails.jsx
+// ============================================================
+
+import React, { useCallback, useEffect, useState } from "react";
+import axios from "axios";
+import { useNavigate, useParams } from "react-router-dom";
 
 import {
-Box,
-Grid,
-Typography,
-Divider,
-Chip,
-Button,
-CircularProgress,
-Alert,
-Paper
+    Alert,
+    Box,
+    Button,
+    CircularProgress,
+    Divider,
+    Grid,
+    Paper,
+    Snackbar,
+    Typography
 } from "@mui/material";
 
 import {
-ArrowBack,
-Edit
+    ArrowBack,
+    Edit,
+    Refresh
 } from "@mui/icons-material";
 
-import {
-useNavigate,
-useParams
-} from "react-router-dom";
+// ============================================================
+// NODE PROXY URL
+// ============================================================
 
-import axios from "axios";
+const API_URL =
+    "http://localhost:5000/api/purchase-order-items";
 
-/* =========================================================
-SERVER URL
-========================================================= */
-
-const SERVER_URL = "http://localhost:5000";
-
-/* =========================================================
-FORMAT CURRENCY
-========================================================= */
+// ============================================================
+// FORMAT CURRENCY
+// ============================================================
 
 const formatCurrency = (value) => {
-const amount = Number(value);
+    const amount = Number(value);
 
-if (!Number.isFinite(amount)) {
-    return "₹ 0.00";
-}
+    if (!Number.isFinite(amount)) {
+        return "₹ 0.00";
+    }
 
-return `₹ ${amount.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-})}`;
-
-
+    return `₹ ${amount.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 };
 
-/* =========================================================
-FORMAT QUANTITY
-========================================================= */
+// ============================================================
+// FORMAT QUANTITY
+// ============================================================
 
 const formatQuantity = (value) => {
-const quantity = Number(value);
+    const quantity = Number(value);
 
-if (!Number.isFinite(quantity)) {
-    return "0.00";
-}
+    if (!Number.isFinite(quantity)) {
+        return "0";
+    }
 
-return quantity.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-});
-
-
+    return quantity.toLocaleString("en-IN", {
+        maximumFractionDigits: 2
+    });
 };
 
-/* =========================================================
-FORMAT NUMBER
-========================================================= */
-
-const formatNumber = (value) => {
-const number = Number(value);
-
-if (!Number.isFinite(number)) {
-    return "0.00";
-}
-
-return number.toLocaleString("en-IN", {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2
-});
-
-};
-
-/* =========================================================
-FORMAT DATE
-========================================================= */
-
-const formatDate = (value) => {
-if (!value) {
-    return "-";
-}
-
-const date = new Date(value);
-
-if (Number.isNaN(date.getTime())) {
-    return "-";
-}
-
-return date.toLocaleString("en-IN", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit"
-});
-
-
-};
-
-/* =========================================================
-DETAIL FIELD
-========================================================= */
+// ============================================================
+// DETAIL FIELD
+// ============================================================
 
 const DetailField = ({
-label,
-value,
-currency = false,
-quantity = false
+    label,
+    value,
+    currency = false,
+    quantity = false
 }) => {
-let displayValue = value;
+    let displayValue = value;
 
-if (currency) {
+    if (currency) {
+        displayValue = formatCurrency(value);
+    } else if (quantity) {
+        displayValue = formatQuantity(value);
+    } else if (
+        value === null ||
+        value === undefined ||
+        value === ""
+    ) {
+        displayValue = "-";
+    }
 
-    displayValue = formatCurrency(value);
+    return (
+        <Box sx={{ height: "100%" }}>
+            <Typography
+                variant="body2"
+                color="text.secondary"
+                sx={{ mb: 0.75 }}
+            >
+                {label}
+            </Typography>
 
-} else if (quantity) {
-
-    displayValue = formatQuantity(value);
-
-} else if (
-    value === null ||
-    value === undefined ||
-    value === ""
-) {
-
-    displayValue = "-";
-
-}
-
-return (
-    <Box>
-
-        <Typography
-            variant="body2"
-            color="text.secondary"
-            sx={{
-                mb: 0.5
-            }}
-        >
-            {label}
-        </Typography>
-
-        <Typography
-            variant="body1"
-            fontWeight={500}
-            sx={{
-                wordBreak: "break-word"
-            }}
-        >
-            {displayValue}
-        </Typography>
-
-    </Box>
-);
+            <Typography
+                variant="body1"
+                fontWeight={500}
+                sx={{ overflowWrap: "anywhere" }}
+            >
+                {displayValue}
+            </Typography>
+        </Box>
+    );
 };
 
-/* =========================================================
-SECTION TITLE
-========================================================= */
+// ============================================================
+// SECTION HEADER
+// ============================================================
 
-const SectionTitle = ({
-children
-}) => {
-return (
-    <Box
-        sx={{
-            gridColumn: "1 / -1",
-            mt: 2,
-            mb: 1
-        }}
-    >
-
+const SectionTitle = ({ children }) => (
+    <Box sx={{ mb: 1 }}>
         <Typography
             variant="h6"
             fontWeight="bold"
@@ -195,330 +122,613 @@ return (
             {children}
         </Typography>
 
-        <Divider
-            sx={{
-                mt: 1
-            }}
-        />
-
+        <Divider sx={{ mt: 1 }} />
     </Box>
 );
+
+// ============================================================
+// NORMALIZE API RESPONSE
+// ============================================================
+
+const normalizeItem = (data) => {
+    if (!data || typeof data !== "object" || Array.isArray(data)) {
+        return null;
+    }
+
+    const id =
+        data.purchaseOrderItemId ??
+        data.PurchaseOrderItemId ??
+        data.id ??
+        data.Id;
+
+    if (id === null || id === undefined) {
+        return null;
+    }
+
+    return {
+        purchaseOrderItemId: id,
+
+        purchaseOrderId:
+            data.purchaseOrderId ??
+            data.PurchaseOrderId ??
+            null,
+
+        sellerId:
+            data.sellerId ??
+            data.SellerId ??
+            null,
+
+        customerId:
+            data.customerId ??
+            data.CustomerId ??
+            null,
+
+        productId:
+            data.productId ??
+            data.ProductId ??
+            null,
+
+        quantity:
+            data.quantity ??
+            data.Quantity ??
+            0,
+
+        unitPrice:
+            data.unitPrice ??
+            data.UnitPrice ??
+            0,
+
+        discount:
+            data.discount ??
+            data.Discount ??
+            0,
+
+        taxAmount:
+            data.taxAmount ??
+            data.TaxAmount ??
+            0,
+
+        totalAmount:
+            data.totalAmount ??
+            data.TotalAmount ??
+            0
+    };
 };
 
-/* =========================================================
-PURCHASE ORDER ITEM DETAILS PAGE
-========================================================= */
+// ============================================================
+// PURCHASE ORDER ITEM DETAILS PAGE
+// ============================================================
 
 const PurchaseOrderItemDetails = () => {
-const {
-    id
-} = useParams();
+    const { id } = useParams();
+    const navigate = useNavigate();
 
-const navigate = useNavigate();
+    const [item, setItem] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState("");
+    const [refreshing, setRefreshing] = useState(false);
 
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        message: ""
+    });
 
-/* =====================================================
-   STATE
-===================================================== */
+    // ========================================================
+    // LOAD ITEM
+    //
+    // First: GET /api/purchase-order-items/{id}
+    // Fallback: GET /api/purchase-order-items/all
+    // ========================================================
 
-const [
-    item,
-    setItem
-] = useState(null);
-
-const [
-    loading,
-    setLoading
-] = useState(true);
-
-const [
-    error,
-    setError
-] = useState("");
-
-
-/* =====================================================
-   LOAD ITEM
-===================================================== */
-
-useEffect(() => {
-
-    const loadItem = async () => {
-
-        try {
-
-            setLoading(true);
-            setError("");
-
-            if (!id || !/^\d+$/.test(id)) {
-
-                setError(
-                    `Invalid Purchase Order Item ID: ${id}`
-                );
-
+    const loadItem = useCallback(
+        async (isRefresh = false) => {
+            if (!id || !/^\d+$/.test(id) || Number(id) <= 0) {
+                setError(`Invalid Purchase Order Item ID: ${id}`);
+                setLoading(false);
                 return;
             }
 
+            try {
+                if (isRefresh) {
+                    setRefreshing(true);
+                } else {
+                    setLoading(true);
+                }
 
-            console.log(
-                "================================================"
-            );
+                setError("");
 
-            console.log(
-                "GET PURCHASE ORDER ITEM DETAILS"
-            );
-
-            console.log(
-                "ITEM ID:",
-                id
-            );
-
-
-            const response = await axios.get(
-                `${SERVER_URL}/api/purchase-order-items/${id}`
-            );
-
-
-            console.log(
-                "PURCHASE ORDER ITEM DETAILS RESPONSE:",
-                response.data
-            );
-
-
-            setItem(response.data);
-
-        } catch (err) {
-
-            console.error(
-                "LOAD PURCHASE ORDER ITEM DETAILS ERROR:",
-                err
-            );
-
-
-            if (err.response) {
-
-                setError(
-                    err.response.data?.message ||
-                    err.response.data ||
-                    `Failed to load Purchase Order Item ${id}`
+                console.log(
+                    "LOADING PURCHASE ORDER ITEM:",
+                    id
                 );
 
-            } else {
+                let foundItem = null;
+                let individualRequestError = null;
+
+                // --------------------------------------------
+                // TRY INDIVIDUAL ITEM ENDPOINT
+                // --------------------------------------------
+
+                try {
+                    const response = await axios.get(
+                        `${API_URL}/${encodeURIComponent(id)}`
+                    );
+
+                    const responseData = response.data;
+
+                    // Support a direct object or common wrappers.
+                    const candidate =
+                        responseData?.data ??
+                        responseData?.item ??
+                        responseData;
+
+                    const normalized = normalizeItem(candidate);
+
+                    if (
+                        normalized &&
+                        String(normalized.purchaseOrderItemId) === String(id)
+                    ) {
+                        foundItem = normalized;
+                    }
+                } catch (requestError) {
+                    individualRequestError = requestError;
+
+                    console.warn(
+                        "INDIVIDUAL ITEM ENDPOINT FAILED; TRYING COLLECTION:",
+                        requestError.response?.status,
+                        requestError.response?.data
+                    );
+                }
+
+                // --------------------------------------------
+                // FALLBACK TO WORKING COLLECTION ENDPOINT
+                // --------------------------------------------
+
+                if (!foundItem) {
+                    const allResponse = await axios.get(
+                        `${API_URL}/all`
+                    );
+
+                    const responseData = allResponse.data;
+
+                    const records = Array.isArray(responseData)
+                        ? responseData
+                        : Array.isArray(responseData?.data)
+                            ? responseData.data
+                            : Array.isArray(responseData?.items)
+                                ? responseData.items
+                                : null;
+
+                    if (!records) {
+                        throw new Error(
+                            "The API did not return a valid Purchase Order Items array."
+                        );
+                    }
+
+                    const matchingRecord = records.find((record) => {
+                        const recordId =
+                            record.purchaseOrderItemId ??
+                            record.PurchaseOrderItemId ??
+                            record.id ??
+                            record.Id;
+
+                        return String(recordId) === String(id);
+                    });
+
+                    foundItem = normalizeItem(matchingRecord);
+                }
+
+                if (!foundItem) {
+                    setItem(null);
+                    setError(
+                        `Purchase Order Item ${id} was not found.`
+                    );
+                    return;
+                }
+
+                setItem(foundItem);
+
+                console.log(
+                    "PURCHASE ORDER ITEM DETAILS:",
+                    foundItem
+                );
+            } catch (requestError) {
+                console.error(
+                    "LOAD PURCHASE ORDER ITEM ERROR:",
+                    requestError
+                );
+
+                console.error(
+                    "API RESPONSE:",
+                    requestError.response?.data
+                );
+
+                setItem(null);
 
                 setError(
-                    "Unable to connect to the server."
+                    requestError.response?.data?.message ||
+                    requestError.response?.data?.error ||
+                    requestError.message ||
+                    "Failed to load Purchase Order Item."
                 );
+            } finally {
+                setLoading(false);
+                setRefreshing(false);
             }
+        },
+        [id]
+    );
 
-        } finally {
+    // ========================================================
+    // INITIAL LOAD
+    // ========================================================
 
-            setLoading(false);
+    useEffect(() => {
+        loadItem();
+    }, [loadItem]);
 
-        }
+    // ========================================================
+    // SNACKBAR CLOSE
+    // ========================================================
 
+    const handleSnackbarClose = () => {
+        setSnackbar((previous) => ({
+            ...previous,
+            open: false
+        }));
     };
 
+    // ========================================================
+    // LOADING
+    // ========================================================
 
-    loadItem();
-
-}, [id]);
-
-
-/* =====================================================
-   LOADING
-===================================================== */
-
-if (loading) {
-
-    return (
-        <Box
-            sx={{
-                minHeight: 400,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                flexDirection: "column",
-                gap: 2
-            }}
-        >
-
-            <CircularProgress />
-
-            <Typography>
-                Loading Purchase Order Item...
-            </Typography>
-
-        </Box>
-    );
-}
-
-
-/* =====================================================
-   ERROR
-===================================================== */
-
-if (error) {
-
-    return (
-        <Box
-            sx={{
-                p: 3
-            }}
-        >
-
-            <Alert
-                severity="error"
+    if (loading) {
+        return (
+            <Box
                 sx={{
-                    mb: 2
+                    minHeight: 350,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    flexDirection: "column",
+                    gap: 2
                 }}
             >
-                {error}
-            </Alert>
+                <CircularProgress />
 
-            <Button
-                variant="contained"
-                startIcon={<ArrowBack />}
-                onClick={() =>
-                    navigate(
-                        "/purchase-order-items"
-                    )
-                }
-            >
-                Back to Purchase Order Items
-            </Button>
+                <Typography>
+                    Loading Purchase Order Item...
+                </Typography>
+            </Box>
+        );
+    }
 
-        </Box>
-    );
-}
+    // ========================================================
+    // ERROR
+    // ========================================================
 
-
-/* =====================================================
-   NO DATA
-===================================================== */
-
-if (!item) {
-
-    return (
-        <Box
-            sx={{
-                p: 3
-            }}
-        >
-
-            <Alert
-                severity="warning"
-                sx={{
-                    mb: 2
-                }}
-            >
-                Purchase Order Item not found.
-            </Alert>
-
-            <Button
-                variant="contained"
-                startIcon={<ArrowBack />}
-                onClick={() =>
-                    navigate(
-                        "/purchase-order-items"
-                    )
-                }
-            >
-                Back to Purchase Order Items
-            </Button>
-
-        </Box>
-    );
-}
-
-
-/* =====================================================
-   NESTED OBJECTS
-===================================================== */
-
-const purchaseOrder =
-    item.purchaseOrder || {};
-
-const product =
-    item.product || {};
-
-
-/* =====================================================
-   PAGE
-===================================================== */
-
-return (
-
-    <Box
-        sx={{
-            p: {
-                xs: 2,
-                md: 3
-            }
-        }}
-    >
-
-        {/* =================================================
-            HEADER
-        ================================================= */}
-
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: {
-                    xs: "flex-start",
-                    md: "center"
-                },
-                flexDirection: {
-                    xs: "column",
-                    md: "row"
-                },
-                gap: 2,
-                mb: 3
-            }}
-        >
-
-            <Box>
-
+    if (error && !item) {
+        return (
+            <Box sx={{ p: { xs: 2, md: 3 } }}>
                 <Typography
-                    variant="h4"
+                    variant="h5"
                     fontWeight="bold"
+                    sx={{ mb: 2 }}
                 >
                     Purchase Order Item Details
                 </Typography>
 
-                <Typography
-                    color="text.secondary"
+                <Alert
+                    severity="error"
+                    sx={{ mb: 2 }}
+                >
+                    {error}
+                </Alert>
+
+                <Box
                     sx={{
-                        mt: 0.5
+                        display: "flex",
+                        gap: 1,
+                        flexWrap: "wrap"
                     }}
                 >
-                    Purchase Order Item ID:{" "}
-                    {item.purchaseOrderItemId}
-                </Typography>
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={() =>
+                            navigate("/purchase-order-items")
+                        }
+                    >
+                        Back to List
+                    </Button>
 
+                    <Button
+                        variant="contained"
+                        startIcon={<Refresh />}
+                        onClick={() => loadItem()}
+                    >
+                        Try Again
+                    </Button>
+                </Box>
             </Box>
+        );
+    }
 
+    // ========================================================
+    // NO ITEM
+    // ========================================================
+
+    if (!item) {
+        return (
+            <Box sx={{ p: 3 }}>
+                <Alert severity="warning" sx={{ mb: 2 }}>
+                    Purchase Order Item not found.
+                </Alert>
+
+                <Button
+                    variant="contained"
+                    startIcon={<ArrowBack />}
+                    onClick={() =>
+                        navigate("/purchase-order-items")
+                    }
+                >
+                    Back to List
+                </Button>
+            </Box>
+        );
+    }
+
+    // ========================================================
+    // DETAILS PAGE
+    // ========================================================
+
+    return (
+        <Box
+            sx={{
+                p: { xs: 2, md: 3 },
+                maxWidth: 1400,
+                mx: "auto"
+            }}
+        >
+            {/* HEADER */}
 
             <Box
                 sx={{
                     display: "flex",
-                    gap: 1
+                    justifyContent: "space-between",
+                    alignItems: { xs: "flex-start", md: "center" },
+                    flexDirection: { xs: "column", md: "row" },
+                    gap: 2,
+                    mb: 3
                 }}
             >
+                <Box>
+                    <Typography
+                        variant="h4"
+                        fontWeight="bold"
+                    >
+                        Purchase Order Item Details
+                    </Typography>
 
+                    <Typography
+                        color="text.secondary"
+                        sx={{ mt: 1 }}
+                    >
+                        Item ID: {item.purchaseOrderItemId}
+                    </Typography>
+                </Box>
+
+                <Box
+                    sx={{
+                        display: "flex",
+                        gap: 1,
+                        flexWrap: "wrap"
+                    }}
+                >
+                    <Button
+                        variant="outlined"
+                        startIcon={<ArrowBack />}
+                        onClick={() =>
+                            navigate("/purchase-order-items")
+                        }
+                    >
+                        Back
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        startIcon={<Refresh />}
+                        disabled={refreshing}
+                        onClick={() => loadItem(true)}
+                    >
+                        {refreshing ? "Refreshing..." : "Refresh"}
+                    </Button>
+
+                    <Button
+                        variant="contained"
+                        startIcon={<Edit />}
+                        onClick={() =>
+                            navigate(
+                                `/purchase-order-items/edit/${item.purchaseOrderItemId}`
+                            )
+                        }
+                    >
+                        Edit
+                    </Button>
+                </Box>
+            </Box>
+
+            {/* ITEM DETAILS */}
+
+            <Paper
+                elevation={2}
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    mb: 3,
+                    borderRadius: 2
+                }}
+            >
+                <SectionTitle>
+                    Purchase Order Item Information
+                </SectionTitle>
+
+                <Grid container spacing={3} sx={{ mt: 1 }}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Purchase Order Item ID"
+                            value={item.purchaseOrderItemId}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Purchase Order ID"
+                            value={item.purchaseOrderId}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Seller ID"
+                            value={item.sellerId}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Customer ID"
+                            value={item.customerId}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Product ID"
+                            value={item.productId}
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Quantity"
+                            value={item.quantity}
+                            quantity
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Unit Price"
+                            value={item.unitPrice}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Discount"
+                            value={item.discount}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Tax Amount"
+                            value={item.taxAmount}
+                            currency
+                        />
+                    </Grid>
+                </Grid>
+            </Paper>
+
+            {/* AMOUNT SUMMARY */}
+
+            <Paper
+                elevation={2}
+                sx={{
+                    p: { xs: 2, md: 3 },
+                    mb: 3,
+                    borderRadius: 2
+                }}
+            >
+                <SectionTitle>
+                    Amount Summary
+                </SectionTitle>
+
+                <Grid container spacing={3} sx={{ mt: 1 }}>
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Quantity"
+                            value={item.quantity}
+                            quantity
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Unit Price"
+                            value={item.unitPrice}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Discount"
+                            value={item.discount}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <DetailField
+                            label="Tax Amount"
+                            value={item.taxAmount}
+                            currency
+                        />
+                    </Grid>
+
+                    <Grid item xs={12} sm={6} md={4}>
+                        <Typography
+                            variant="body2"
+                            color="text.secondary"
+                            sx={{ mb: 0.75 }}
+                        >
+                            Total Amount
+                        </Typography>
+
+                        <Typography
+                            variant="h5"
+                            fontWeight="bold"
+                            color="primary.main"
+                        >
+                            {formatCurrency(item.totalAmount)}
+                        </Typography>
+                    </Grid>
+                </Grid>
+            </Paper>
+
+            {/* BOTTOM ACTIONS */}
+
+            <Box
+                sx={{
+                    display: "flex",
+                    justifyContent: "flex-end",
+                    gap: 2,
+                    flexWrap: "wrap",
+                    pb: 3
+                }}
+            >
                 <Button
                     variant="outlined"
                     startIcon={<ArrowBack />}
                     onClick={() =>
-                        navigate(
-                            "/purchase-order-items"
-                        )
+                        navigate("/purchase-order-items")
                     }
                 >
-                    Back
+                    Back to List
                 </Button>
-
 
                 <Button
                     variant="contained"
@@ -529,664 +739,31 @@ return (
                         )
                     }
                 >
-                    Edit
+                    Edit Item
                 </Button>
-
             </Box>
 
+            {/* SNACKBAR */}
+
+            <Snackbar
+                open={snackbar.open}
+                autoHideDuration={3000}
+                onClose={handleSnackbarClose}
+                anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "right"
+                }}
+            >
+                <Alert
+                    severity="success"
+                    onClose={handleSnackbarClose}
+                    variant="filled"
+                >
+                    {snackbar.message}
+                </Alert>
+            </Snackbar>
         </Box>
-
-
-        {/* =================================================
-            ITEM DETAILS CARD
-        ================================================= */}
-
-        <Paper
-            elevation={2}
-            sx={{
-                p: {
-                    xs: 2,
-                    md: 3
-                },
-                mb: 3
-            }}
-        >
-
-            <Grid
-                container
-                spacing={3}
-            >
-
-                <SectionTitle>
-                    Purchase Order Item
-                </SectionTitle>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Purchase Order Item ID"
-                        value={
-                            item.purchaseOrderItemId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Purchase Order ID"
-                        value={
-                            item.purchaseOrderId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Seller ID"
-                        value={
-                            item.sellerId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Customer ID"
-                        value={
-                            item.customerId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Product ID"
-                        value={
-                            item.productId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Quantity"
-                        value={
-                            item.quantity
-                        }
-                        quantity
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Unit Price"
-                        value={
-                            item.unitPrice
-                        }
-                        currency
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Discount"
-                        value={
-                            item.discount
-                        }
-                        currency
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Tax Amount"
-                        value={
-                            item.taxAmount
-                        }
-                        currency
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-
-                    <Box>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                                mb: 0.5
-                            }}
-                        >
-                            Total Amount
-                        </Typography>
-
-                        <Typography
-                            variant="h6"
-                            fontWeight="bold"
-                        >
-                            {formatCurrency(
-                                item.totalAmount
-                            )}
-                        </Typography>
-
-                    </Box>
-
-                </Grid>
-
-            </Grid>
-
-        </Paper>
-
-
-        {/* =================================================
-            PURCHASE ORDER DETAILS
-        ================================================= */}
-
-        <Paper
-            elevation={2}
-            sx={{
-                p: {
-                    xs: 2,
-                    md: 3
-                },
-                mb: 3
-            }}
-        >
-
-            <Grid
-                container
-                spacing={3}
-            >
-
-                <SectionTitle>
-                    Purchase Order Details
-                </SectionTitle>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Purchase Order ID"
-                        value={
-                            purchaseOrder.purchaseOrderId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Purchase Order Number"
-                        value={
-                            purchaseOrder.purchaseOrderNumber
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Seller ID"
-                        value={
-                            purchaseOrder.sellerId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Supplier ID"
-                        value={
-                            purchaseOrder.supplierId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Customer ID"
-                        value={
-                            purchaseOrder.customerId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Order Date"
-                        value={
-                            formatDate(
-                                purchaseOrder.orderDate
-                            )
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Expected Delivery Date"
-                        value={
-                            formatDate(
-                                purchaseOrder.expectedDeliveryDate
-                            )
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-
-                    <Box>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                                mb: 0.5
-                            }}
-                        >
-                            Status
-                        </Typography>
-
-                        {purchaseOrder.status ? (
-
-                            <Chip
-                                label={
-                                    purchaseOrder.status
-                                }
-                                color="primary"
-                                size="small"
-                            />
-
-                        ) : (
-
-                            <Typography>
-                                -
-                            </Typography>
-
-                        )}
-
-                    </Box>
-
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Purchase Order Total Amount"
-                        value={
-                            purchaseOrder.totalAmount
-                        }
-                        currency
-                    />
-                </Grid>
-
-
-                <Grid xs={12}>
-                    <DetailField
-                        label="Remarks"
-                        value={
-                            purchaseOrder.remarks
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6}>
-                    <DetailField
-                        label="Created Date"
-                        value={
-                            formatDate(
-                                purchaseOrder.createdDate
-                            )
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6}>
-                    <DetailField
-                        label="Updated Date"
-                        value={
-                            formatDate(
-                                purchaseOrder.updatedDate
-                            )
-                        }
-                    />
-                </Grid>
-
-            </Grid>
-
-        </Paper>
-
-
-        {/* =================================================
-            PRODUCT DETAILS
-        ================================================= */}
-
-        <Paper
-            elevation={2}
-            sx={{
-                p: {
-                    xs: 2,
-                    md: 3
-                },
-                mb: 3
-            }}
-        >
-
-            <Grid
-                container
-                spacing={3}
-            >
-
-                <SectionTitle>
-                    Product Details
-                </SectionTitle>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Product ID"
-                        value={
-                            product.productId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="SKU"
-                        value={
-                            product.sku
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} md={8}>
-                    <DetailField
-                        label="Product Name"
-                        value={
-                            product.productName
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Seller ID"
-                        value={
-                            product.sellerId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Customer ID"
-                        value={
-                            product.customerId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Brand ID"
-                        value={
-                            product.brandId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Category ID"
-                        value={
-                            product.categoryId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Product Type ID"
-                        value={
-                            product.productTypeId
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Barcode"
-                        value={
-                            product.barcode
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="HSN Code"
-                        value={
-                            product.hsnCode
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Unit of Measure"
-                        value={
-                            product.unitOfMeasure
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Weight"
-                        value={
-                            product.weight
-                        }
-                        quantity
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Length"
-                        value={
-                            product.length
-                        }
-                        quantity
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Width"
-                        value={
-                            product.width
-                        }
-                        quantity
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Height"
-                        value={
-                            product.height
-                        }
-                        quantity
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-
-                    <Box>
-
-                        <Typography
-                            variant="body2"
-                            color="text.secondary"
-                            sx={{
-                                mb: 0.5
-                            }}
-                        >
-                            Product Status
-                        </Typography>
-
-                        {product.status ? (
-
-                            <Chip
-                                label={
-                                    product.status
-                                }
-                                size="small"
-                                color={
-                                    product.isActive
-                                        ? "success"
-                                        : "default"
-                                }
-                            />
-
-                        ) : (
-
-                            <Typography>
-                                -
-                            </Typography>
-
-                        )}
-
-                    </Box>
-
-                </Grid>
-
-
-                <Grid xs={12} sm={6} md={4}>
-                    <DetailField
-                        label="Active"
-                        value={
-                            product.isActive
-                                ? "Yes"
-                                : "No"
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12}>
-                    <DetailField
-                        label="Description"
-                        value={
-                            product.description
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6}>
-                    <DetailField
-                        label="Product Created Date"
-                        value={
-                            formatDate(
-                                product.createdDate
-                            )
-                        }
-                    />
-                </Grid>
-
-
-                <Grid xs={12} sm={6}>
-                    <DetailField
-                        label="Product Updated Date"
-                        value={
-                            formatDate(
-                                product.updatedDate
-                            )
-                        }
-                    />
-                </Grid>
-
-            </Grid>
-
-        </Paper>
-
-
-        {/* =================================================
-            BOTTOM ACTIONS
-        ================================================= */}
-
-        <Box
-            sx={{
-                display: "flex",
-                justifyContent: "flex-end",
-                gap: 2,
-                pb: 3
-            }}
-        >
-
-            <Button
-                variant="outlined"
-                startIcon={<ArrowBack />}
-                onClick={() =>
-                    navigate(
-                        "/purchase-order-items"
-                    )
-                }
-            >
-                Back to List
-            </Button>
-
-
-            <Button
-                variant="contained"
-                startIcon={<Edit />}
-                onClick={() =>
-                    navigate(
-                        `/purchase-order-items/edit/${item.purchaseOrderItemId}`
-                    )
-                }
-            >
-                Edit Item
-            </Button>
-
-        </Box>
-
-    </Box>
-);
-
-
+    );
 };
 
 export default PurchaseOrderItemDetails;
