@@ -34,7 +34,6 @@ import StockLedgerModal from "./StockLedgerModal";
 import StockLedgerView from "./StockLedgerView";
 import DeleteStockLedgerDialog from "./DeleteStockLedgerDialog";
 
-
 // =========================================================
 // NODE SERVER
 // =========================================================
@@ -43,7 +42,6 @@ const SERVER_URL = "http://localhost:5000";
 
 const STOCK_LEDGER_API =
     `${SERVER_URL}/api/stock-ledgers`;
-
 
 // =========================================================
 // COMPONENT
@@ -83,28 +81,52 @@ const StockLedgerList = () => {
         severity: "success"
     });
 
-
     // =====================================================
     // LOAD ALL STOCK LEDGERS
     //
     // GET
     // /api/stock-ledgers/all
     //
-    // Fetches ALL records at once.
+    // React
+    //   ↓
+    // Node :5000
+    //   ↓
+    // ASP.NET :7203
     // =====================================================
 
     const loadStockLedgers = async () => {
+
+        console.log(
+            "========================================"
+        );
+
+        console.log(
+            "STOCK LEDGER LOAD START"
+        );
 
         try {
 
             setLoading(true);
 
-            const response = await axios.get(
+            console.log(
+                "Calling:",
                 `${STOCK_LEDGER_API}/all`
+            );
+
+            const response = await axios.get(
+                `${STOCK_LEDGER_API}/all`,
+                {
+                    timeout: 15000
+                }
             );
 
             console.log(
                 "Stock Ledger Response:",
+                response
+            );
+
+            console.log(
+                "Stock Ledger Response Data:",
                 response.data
             );
 
@@ -112,11 +134,22 @@ const StockLedgerList = () => {
 
             let items = [];
 
+            // =================================================
+            // RESPONSE FORMAT 1
+            // Array
+            // =================================================
+
             if (Array.isArray(data)) {
 
                 items = data;
 
             }
+
+            // =================================================
+            // RESPONSE FORMAT 2
+            // { items: [] }
+            // =================================================
+
             else if (
                 Array.isArray(data?.items)
             ) {
@@ -124,6 +157,12 @@ const StockLedgerList = () => {
                 items = data.items;
 
             }
+
+            // =================================================
+            // RESPONSE FORMAT 3
+            // { data: [] }
+            // =================================================
+
             else if (
                 Array.isArray(data?.data)
             ) {
@@ -132,38 +171,119 @@ const StockLedgerList = () => {
 
             }
 
+            // =================================================
+            // RESPONSE FORMAT 4
+            // { success: true, data: [] }
+            // =================================================
+
+            else if (
+                Array.isArray(data?.result)
+            ) {
+
+                items = data.result;
+
+            }
+
+            console.log(
+                "Final Stock Ledger Items:",
+                items
+            );
+
             setLedgers(items);
 
-            // Reset to first page after reload
+            // Reset pagination after loading
             setPage(1);
+
+            console.log(
+                `Loaded ${items.length} stock ledger records.`
+            );
 
         }
         catch (error) {
 
             console.error(
-                "Stock Ledger Load Error:",
+                "========================================"
+            );
+
+            console.error(
+                "STOCK LEDGER LOAD ERROR"
+            );
+
+            console.error(
+                "Error:",
                 error
+            );
+
+            console.error(
+                "Message:",
+                error?.message
+            );
+
+            console.error(
+                "Status:",
+                error?.response?.status
+            );
+
+            console.error(
+                "Response Data:",
+                error?.response?.data
+            );
+
+            console.error(
+                "Request URL:",
+                `${STOCK_LEDGER_API}/all`
             );
 
             setLedgers([]);
 
+            let errorMessage =
+                "Failed to load stock ledger data.";
+
+            if (
+                error?.code === "ECONNABORTED"
+            ) {
+
+                errorMessage =
+                    "Stock Ledger request timed out. Check the Node server and ASP.NET API.";
+
+            }
+            else if (
+                error?.response?.data?.message
+            ) {
+
+                errorMessage =
+                    error.response.data.message;
+
+            }
+            else if (
+                error?.message
+            ) {
+
+                errorMessage =
+                    error.message;
+
+            }
+
             setSnackbar({
                 open: true,
-                message:
-                    error?.response?.data?.message ||
-                    "Failed to load stock ledger data.",
+                message: errorMessage,
                 severity: "error"
             });
 
         }
         finally {
 
+            console.log(
+                "STOCK LEDGER LOAD FINISHED"
+            );
+
             setLoading(false);
 
+            console.log(
+                "========================================"
+            );
         }
-
     };
-
 
     // =====================================================
     // INITIAL LOAD
@@ -174,7 +294,6 @@ const StockLedgerList = () => {
         loadStockLedgers();
 
     }, []);
-
 
     // =====================================================
     // SEARCH
@@ -193,13 +312,14 @@ const StockLedgerList = () => {
                 .trim()
                 .toLowerCase();
 
-
         return ledgers.filter((item) => {
 
             return (
 
                 String(
-                    item.StockLedgerId ?? ""
+                    item?.StockLedgerId ??
+                    item?.stockLedgerId ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -207,7 +327,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.SellerId ?? ""
+                    item?.SellerId ??
+                    item?.sellerId ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -215,7 +337,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.CustomerId ?? ""
+                    item?.CustomerId ??
+                    item?.customerId ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -223,7 +347,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.ProductId ?? ""
+                    item?.ProductId ??
+                    item?.productId ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -231,7 +357,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.WarehouseId ?? ""
+                    item?.WarehouseId ??
+                    item?.warehouseId ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -239,7 +367,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.TransactionType ?? ""
+                    item?.TransactionType ??
+                    item?.transactionType ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -247,7 +377,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.ReferenceNumber ?? ""
+                    item?.ReferenceNumber ??
+                    item?.referenceNumber ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -255,7 +387,9 @@ const StockLedgerList = () => {
                 ||
 
                 String(
-                    item.Remarks ?? ""
+                    item?.Remarks ??
+                    item?.remarks ??
+                    ""
                 )
                     .toLowerCase()
                     .includes(search)
@@ -269,30 +403,33 @@ const StockLedgerList = () => {
         searchText
     ]);
 
-
     // =====================================================
     // PAGINATION
-    //
-    // Pagination happens in React.
-    // Backend already returned ALL records.
     // =====================================================
 
     const totalRecords =
         filteredLedgers.length;
 
-
     const totalPages =
-        Math.ceil(
-            totalRecords / pageSize
+        Math.max(
+            1,
+            Math.ceil(
+                totalRecords / pageSize
+            )
         );
 
+    // Prevent invalid page
+    const safePage =
+        Math.min(
+            Math.max(page, 1),
+            totalPages
+        );
 
     const paginatedLedgers =
         filteredLedgers.slice(
-            (page - 1) * pageSize,
-            page * pageSize
+            (safePage - 1) * pageSize,
+            safePage * pageSize
         );
-
 
     // =====================================================
     // ADD
@@ -306,7 +443,6 @@ const StockLedgerList = () => {
 
     };
 
-
     // =====================================================
     // EDIT
     // =====================================================
@@ -318,7 +454,6 @@ const StockLedgerList = () => {
         setModalOpen(true);
 
     };
-
 
     // =====================================================
     // VIEW
@@ -332,7 +467,6 @@ const StockLedgerList = () => {
 
     };
 
-
     // =====================================================
     // DELETE OPEN
     // =====================================================
@@ -345,23 +479,48 @@ const StockLedgerList = () => {
 
     };
 
-
     // =====================================================
     // CREATE / UPDATE
     //
-    // POST /api/stock-ledgers
-    // PUT  /api/stock-ledgers/{id}
+    // POST
+    // /api/stock-ledgers
+    //
+    // PUT
+    // /api/stock-ledgers/{id}
     // =====================================================
 
     const handleSave = async (data) => {
 
         try {
 
-            if (data.StockLedgerId) {
+            console.log(
+                "Saving Stock Ledger:",
+                data
+            );
+
+            const ledgerId =
+                data?.StockLedgerId ??
+                data?.stockLedgerId;
+
+            // =================================================
+            // UPDATE
+            // =================================================
+
+            if (ledgerId !== undefined &&
+                ledgerId !== null &&
+                String(ledgerId).trim() !== "") {
+
+                console.log(
+                    "Updating Stock Ledger:",
+                    ledgerId
+                );
 
                 await axios.put(
-                    `${STOCK_LEDGER_API}/${data.StockLedgerId}`,
-                    data
+                    `${STOCK_LEDGER_API}/${encodeURIComponent(ledgerId)}`,
+                    data,
+                    {
+                        timeout: 15000
+                    }
                 );
 
                 setSnackbar({
@@ -372,11 +531,23 @@ const StockLedgerList = () => {
                 });
 
             }
+
+            // =================================================
+            // CREATE
+            // =================================================
+
             else {
+
+                console.log(
+                    "Creating Stock Ledger"
+                );
 
                 await axios.post(
                     STOCK_LEDGER_API,
-                    data
+                    data,
+                    {
+                        timeout: 15000
+                    }
                 );
 
                 setSnackbar({
@@ -387,7 +558,6 @@ const StockLedgerList = () => {
                 });
 
             }
-
 
             setModalOpen(false);
 
@@ -407,6 +577,7 @@ const StockLedgerList = () => {
                 open: true,
                 message:
                     error?.response?.data?.message ||
+                    error?.message ||
                     "Save failed.",
                 severity: "error"
             });
@@ -415,21 +586,28 @@ const StockLedgerList = () => {
 
     };
 
-
     // =====================================================
     // DELETE
     //
-    // DELETE /api/stock-ledgers/{id}
+    // DELETE
+    // /api/stock-ledgers/{id}
     // =====================================================
 
     const handleDeleted = async (id) => {
 
         try {
 
-            await axios.delete(
-                `${STOCK_LEDGER_API}/${id}`
+            console.log(
+                "Deleting Stock Ledger:",
+                id
             );
 
+            await axios.delete(
+                `${STOCK_LEDGER_API}/${encodeURIComponent(id)}`,
+                {
+                    timeout: 15000
+                }
+            );
 
             setSnackbar({
                 open: true,
@@ -438,11 +616,9 @@ const StockLedgerList = () => {
                 severity: "success"
             });
 
-
             setDeleteOpen(false);
 
             setSelectedLedger(null);
-
 
             await loadStockLedgers();
 
@@ -458,6 +634,7 @@ const StockLedgerList = () => {
                 open: true,
                 message:
                     error?.response?.data?.message ||
+                    error?.message ||
                     "Delete failed.",
                 severity: "error"
             });
@@ -466,17 +643,19 @@ const StockLedgerList = () => {
 
     };
 
-
     // =====================================================
     // REFRESH
     // =====================================================
 
     const handleRefresh = () => {
 
-        loadStockLedgers();
+        if (!loading) {
+
+            loadStockLedgers();
+
+        }
 
     };
-
 
     // =====================================================
     // PAGE CHANGE
@@ -484,10 +663,26 @@ const StockLedgerList = () => {
 
     const handlePageChange = (newPage) => {
 
-        setPage(newPage);
+        const numericPage =
+            Number(newPage);
+
+        if (
+            Number.isFinite(numericPage)
+        ) {
+
+            setPage(
+                Math.min(
+                    Math.max(
+                        numericPage,
+                        1
+                    ),
+                    totalPages
+                )
+            );
+
+        }
 
     };
-
 
     // =====================================================
     // PAGE SIZE
@@ -495,12 +690,21 @@ const StockLedgerList = () => {
 
     const handlePageSizeChange = (size) => {
 
-        setPageSize(size);
+        const numericSize =
+            Number(size);
 
-        setPage(1);
+        if (
+            Number.isFinite(numericSize) &&
+            numericSize > 0
+        ) {
+
+            setPageSize(numericSize);
+
+            setPage(1);
+
+        }
 
     };
-
 
     // =====================================================
     // RENDER
@@ -526,7 +730,6 @@ const StockLedgerList = () => {
                 onRefresh={handleRefresh}
             />
 
-
             {/* =================================================
                 STATISTICS
             ================================================= */}
@@ -541,7 +744,9 @@ const StockLedgerList = () => {
                             (sum, item) =>
                                 sum +
                                 Number(
-                                    item.Quantity || 0
+                                    item?.Quantity ??
+                                    item?.quantity ??
+                                    0
                                 ),
                             0
                         ),
@@ -551,13 +756,14 @@ const StockLedgerList = () => {
                             (sum, item) =>
                                 sum +
                                 Number(
-                                    item.BalanceQuantity || 0
+                                    item?.BalanceQuantity ??
+                                    item?.balanceQuantity ??
+                                    0
                                 ),
                             0
                         )
                 }}
             />
-
 
             {/* =================================================
                 SEARCH
@@ -574,7 +780,6 @@ const StockLedgerList = () => {
                 }}
             />
 
-
             {/* =================================================
                 TABLE
             ================================================= */}
@@ -586,7 +791,9 @@ const StockLedgerList = () => {
                         minHeight: 300,
                         display: "flex",
                         justifyContent: "center",
-                        alignItems: "center"
+                        alignItems: "center",
+                        flexDirection: "column",
+                        gap: 2
                     }}
                 >
 
@@ -616,7 +823,6 @@ const StockLedgerList = () => {
 
             )}
 
-
             {/* =================================================
                 PAGINATION
             ================================================= */}
@@ -625,7 +831,7 @@ const StockLedgerList = () => {
                 totalRecords > 0 && (
 
                     <StockLedgerPagination
-                        page={page}
+                        page={safePage}
                         totalPages={totalPages}
                         pageSize={pageSize}
                         totalRecords={totalRecords}
@@ -638,7 +844,6 @@ const StockLedgerList = () => {
                     />
 
                 )}
-
 
             {/* =================================================
                 CREATE / EDIT MODAL
@@ -657,7 +862,6 @@ const StockLedgerList = () => {
                 onSave={handleSave}
             />
 
-
             {/* =================================================
                 VIEW
             ================================================= */}
@@ -673,7 +877,6 @@ const StockLedgerList = () => {
 
                 }}
             />
-
 
             {/* =================================================
                 DELETE
@@ -691,7 +894,6 @@ const StockLedgerList = () => {
                 }}
                 onDeleted={handleDeleted}
             />
-
 
             {/* =================================================
                 SNACKBAR
@@ -726,7 +928,9 @@ const StockLedgerList = () => {
 
                     }}
                 >
+
                     {snackbar.message}
+
                 </Alert>
 
             </Snackbar>
@@ -736,6 +940,5 @@ const StockLedgerList = () => {
     );
 
 };
-
 
 export default StockLedgerList;

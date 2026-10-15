@@ -35815,12 +35815,188 @@ app.delete("/api/Picklist/:id", async (req, res) => {
         return handleApiError(error, res);
     }
 });
+/////////////////////////////inventory adjustment//////////////////
+// =========================================================
+// INVENTORY ADJUSTMENTS API CONFIGURATION
+// =========================================================
+
+const INVENTORY_ADJUSTMENTS_API =
+    `${BASE_URL}/inventory-adjustments`;
+
+// =========================================================
+// GET ALL INVENTORY ADJUSTMENTS
+// GET /api/inventory-adjustments/all
+// =========================================================
+
+app.get("/api/inventory-adjustments/all", async (req, res) => {
+    try {
+        const response = await axios.get(
+            `${INVENTORY_ADJUSTMENTS_API}/all`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET ALL INVENTORY ADJUSTMENTS ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: "Failed to fetch all inventory adjustments.",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =========================================================
+// GET INVENTORY ADJUSTMENT BY ID
+// GET /api/inventory-adjustments/:id
+// =========================================================
+
+app.get("/api/inventory-adjustments/:id", async (req, res) => {
+    try {
+        const id = encodeURIComponent(req.params.id);
+
+        const response = await axios.get(
+            `${INVENTORY_ADJUSTMENTS_API}/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "GET INVENTORY ADJUSTMENT BY ID ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: `Failed to fetch inventory adjustment ${req.params.id}.`,
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =========================================================
+// CREATE INVENTORY ADJUSTMENT
+// POST /api/inventory-adjustments
+// =========================================================
+
+app.post("/api/inventory-adjustments", async (req, res) => {
+    try {
+        const response = await axios.post(
+            INVENTORY_ADJUSTMENTS_API,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "CREATE INVENTORY ADJUSTMENT ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: "Failed to create inventory adjustment.",
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =========================================================
+// UPDATE INVENTORY ADJUSTMENT
+// PUT /api/inventory-adjustments/:id
+// =========================================================
+
+app.put("/api/inventory-adjustments/:id", async (req, res) => {
+    try {
+        const id = encodeURIComponent(req.params.id);
+
+        const response = await axios.put(
+            `${INVENTORY_ADJUSTMENTS_API}/${id}`,
+            req.body,
+            {
+                httpsAgent,
+                headers: {
+                    "Content-Type": "application/json"
+                }
+            }
+        );
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "UPDATE INVENTORY ADJUSTMENT ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: `Failed to update inventory adjustment ${req.params.id}.`,
+            error: error.response?.data || error.message
+        });
+    }
+});
+
+// =========================================================
+// DELETE INVENTORY ADJUSTMENT
+// DELETE /api/inventory-adjustments/:id
+// =========================================================
+
+app.delete("/api/inventory-adjustments/:id", async (req, res) => {
+    try {
+        const id = encodeURIComponent(req.params.id);
+
+        const response = await axios.delete(
+            `${INVENTORY_ADJUSTMENTS_API}/${id}`,
+            {
+                httpsAgent
+            }
+        );
+
+        if (
+            response.status === 204 ||
+            response.status === 205 ||
+            response.data == null
+        ) {
+            return res.status(response.status).end();
+        }
+
+        return res.status(response.status).json(response.data);
+    } catch (error) {
+        console.error(
+            "DELETE INVENTORY ADJUSTMENT ERROR:",
+            error.response?.data || error.message
+        );
+
+        return res.status(error.response?.status || 500).json({
+            success: false,
+            message: `Failed to delete inventory adjustment ${req.params.id}.`,
+            error: error.response?.data || error.message
+        });
+    }
+});
 
 
 
-/////////////////////manifest-packages-putaway/////////////////////
+
+
+/////////////////////manifest-packages/////////////////////
 // =====================================================
-// MANIFEST PACKAGES PUTAWAY
+// MANIFEST PACKAGES 
 // =====================================================
 /* =========================================================
    MANIFEST PACKAGES - GET ALL
@@ -35950,6 +36126,7 @@ app.delete("/api/manifest-packages/:id", async (req, res) => {
         );
     }
 });
+
 //////////////////////putaway/////////
 // =====================================================
 // PUTAWAY APIs

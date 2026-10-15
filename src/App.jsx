@@ -129,6 +129,16 @@ import ProductToolbar from "./pages/Products/ProductToolbar";
 import ProductView from "./pages/Products/ProductView";
 import DeleteProductDialog from "./pages/Products/DeleteProductDialog";
 
+import InventoryAdjustmentsList from "./pages/InventoryAdjustments/InventoryAdjustmentsList";
+import InventoryAdjustmentsCreate from "./pages/InventoryAdjustments/InventoryAdjustmentsCreate";
+import InventoryAdjustmentsEdit from "./pages/InventoryAdjustments/InventoryAdjustmentsEdit";
+import InventoryAdjustmentsView from "./pages/InventoryAdjustments/InventoryAdjustmentsView";
+import InventoryAdjustmentsDetails from "./pages/InventoryAdjustments/InventoryAdjustmentsDetails";
+import InventoryAdjustmentsFilters from "./pages/InventoryAdjustments/InventoryAdjustmentsFilters";  
+import InventoryAdjustmentsToolbar from "./pages/InventoryAdjustments/InventoryAdjustmentsToolbar";
+import InventoryAdjustmentsPagination from "./pages/InventoryAdjustments/InventoryAdjustmentsPagination";
+  
+
 import ProductImageCard from "./pages/ProductImages/ProductImageCard";
 import ProductImageList from "./pages/ProductImages/ProductImageList";
 import ProductImageModal from "./pages/ProductImages/ProductImageModal";
@@ -1192,6 +1202,34 @@ function App() {
         <Route path="invoice-tax-details/:id/edit" element={<InvoiceTaxDetailEdit />} />
         <Route path="invoice-tax-details/edit/:id" element={<InvoiceTaxDetailEdit />} />
         <Route path="invoice-tax-details/:id" element={<InvoiceTaxDetailDetails />} />
+
+       ///////////////////////////
+
+       <Route
+    path="/inventory-adjustments"
+    element={<InventoryAdjustmentsList />}
+/>
+
+<Route
+    path="/inventory-adjustments/create"
+    element={<InventoryAdjustmentsCreate />}
+/>
+
+<Route
+    path="/inventory-adjustments/details/:id"
+    element={<InventoryAdjustmentsDetails />}
+/>
+
+<Route
+    path="/inventory-adjustments/view/:id"
+    element={<InventoryAdjustmentsView />}
+/>
+
+<Route
+    path="/inventory-adjustments/:id/edit"
+    element={<InventoryAdjustmentsEdit />}
+/>
+
 
         {/* MARKETPLACE ORDERS */}
         <Route path="marketplace-orders" element={<MarketplaceOrderList />} />
