@@ -249,14 +249,14 @@ const ManifestPackagesTable = ({
                             variant="h6"
                             fontWeight={700}
                         >
-                            Putaway Records
+                             Records
                         </Typography>
 
                         <Typography
                             variant="body2"
                             color="text.secondary"
                         >
-                            Manifest package putaway details
+                            Manifest package details
                         </Typography>
                     </Box>
                 </Stack>
@@ -304,7 +304,7 @@ const ManifestPackagesTable = ({
                                     whiteSpace: "nowrap"
                                 }}
                             >
-                                Putaway ID
+                                 ID
                             </TableCell>
 
                             <TableCell
@@ -333,7 +333,7 @@ const ManifestPackagesTable = ({
                                     minWidth: 170
                                 }}
                             >
-                                Putaway Location
+                                 Location
                             </TableCell>
 
                             <TableCell
@@ -397,7 +397,7 @@ const ManifestPackagesTable = ({
                                         color="text.secondary"
                                         sx={{ mt: 1.5 }}
                                     >
-                                        Loading putaway records...
+                                        Loading  records...
                                     </Typography>
                                 </TableCell>
                             </TableRow>
@@ -435,10 +435,10 @@ const ManifestPackagesTable = ({
                             safeRecords.map((record, index) => {
                                 const id = getFieldValue(
                                     record,
-                                    "manifestPackagesPutawayId",
-                                    "ManifestPackagesPutawayId",
-                                    "manifestPackagePutawayId",
-                                    "ManifestPackagePutawayId",
+                                    "manifestPackagesId",
+                                    "ManifestPackagesId",
+                                    "manifestPackageId",
+                                    "ManifestPackageId",
                                     "id",
                                     "Id"
                                 );

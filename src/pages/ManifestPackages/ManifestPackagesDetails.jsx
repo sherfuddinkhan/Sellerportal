@@ -204,7 +204,7 @@ const ManifestPackagesDetails = ({
     error = "",
     onEdit,
     onBack,
-    title = "Manifest Package Putaway Details"
+    title = "Manifest Package  Details"
 }) => {
 
     /* =====================================================
@@ -228,7 +228,7 @@ const ManifestPackagesDetails = ({
                     color="text.secondary"
                     sx={{ mt: 2 }}
                 >
-                    Loading putaway details...
+                    Loading  details...
                 </Typography>
             </Paper>
         );

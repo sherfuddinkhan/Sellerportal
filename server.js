@@ -35853,69 +35853,76 @@ app.get("/api/manifest-packages/all", async (req, res) => {
 });
 
 
-// GET BY ID
 app.get("/api/manifest-packages/:id", async (req, res) => {
     try {
+        console.log("Proxying ID:", req.params.id);
         const response = await axios.get(
-            `${API_BASE_URL}/ManifestPackages/${req.params.id}`
+            `https://localhost:7203/api/manifest-packages/${req.params.id}`,
+            { httpsAgent: new (require('https').Agent)({ rejectUnauthorized: false }) }
         );
-
-        res.status(response.status).json(response.data);
+        console.log("DOTNET returned:", response.data);
+        res.json(response.data);
     } catch (error) {
-        res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
-        );
+        console.error("PROXY ERROR:", error.response?.data);
+        res.status(500).json(error.response?.data || { message: error.message });
     }
 });
 
-// CREATE
+
+// =========================================================
+// CREATE MANIFEST PACKAGE - POST
+// POST /api/manifest-packages
+// =========================================================
+
 app.post("/api/manifest-packages", async (req, res) => {
     try {
+        const payload = {
+            manifestPackageId: Number(req.body.manifestPackageId || 0),
+            sellerId: Number(req.body.sellerId),
+            customerId: Number(req.body.customerId),
+            shippingManifestCode: String(
+                req.body.shippingManifestCode || ""
+            ).trim(),
+            shippingPackageCode: String(
+                req.body.shippingPackageCode || ""
+            ).trim()
+        };
+
+        console.log("Creating Manifest Package:", payload);
+
         const response = await axios.post(
-            `${API_BASE_URL}/ManifestPackages`,
-            req.body
+            `${API_BASE_URL}/manifest-packages`,
+            payload
         );
 
         res.status(response.status).json(response.data);
     } catch (error) {
+        console.error(
+            "Create Manifest Package Error:",
+            error.response?.data || error.message
+        );
+
         res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
+            error.response?.data || {
+                message: error.message || "Failed to create manifest package."
+            }
         );
     }
 });
+;
 
 // UPDATE - ManifestPackages (No Putaway)
 app.put("/api/manifest-packages/:id", async (req, res) => {
-    try {
-        const id = Number(req.params.id);
-
-        // Force manifestPackageId = id, otherwise .NET returns 400
-        const body = {
-            ...req.body,
-            manifestPackageId: id
-        };
-
-        console.log("Updating ManifestPackage", id, "with body:", body); // debug
-
-        const response = await axios.put(
-            `${API_BASE_URL}/ManifestPackages/${id}`,
-            body
-        );
-
-        res.status(response.status).json(response.data);
-    } catch (error) {
-        console.log("Backend PUT Error:", error.response?.data); // this will show real error
-        res.status(error.response?.status || 500).json(
-            error.response?.data || { message: error.message }
-        );
-    }
+  const body = { ...req.body, manifestPackageId: Number(req.params.id) };
+  const r = await axiosInstance.put(`https://localhost:7203/api//manifest-packages/${req.params.id}`, body);
+  res.json(r.data);
 });
 
 // PARTIAL UPDATE
 app.patch("/api/manifest-packages/:id", async (req, res) => {
     try {
         const response = await axios.patch(
-            `${API_BASE_URL}/ManifestPackages/${req.params.id}`,
+            `${API_BASE_URL}//manifest-packages/${req.params.id}`,
             req.body
         );
 
@@ -35931,7 +35938,7 @@ app.patch("/api/manifest-packages/:id", async (req, res) => {
 app.delete("/api/manifest-packages/:id", async (req, res) => {
     try {
         const response = await axios.delete(
-            `${API_BASE_URL}/ManifestPackages/${req.params.id}`
+            `${API_BASE_URL}//manifest-packages/${req.params.id}`
         );
 
         res.status(response.status).json(

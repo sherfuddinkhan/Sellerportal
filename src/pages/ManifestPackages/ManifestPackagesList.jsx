@@ -445,6 +445,7 @@ const handleEdit = (record) => {
                         loading={loading}
                         onView={handleView}
                         onEdit={handleEdit}
+                        onSubmit={handleCreate}
                         onDelete={handleDeleteClick}
                         deletingId={deletingId}
                     />
